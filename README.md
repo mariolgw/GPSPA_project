@@ -6,3 +6,8 @@ Git repository for GPSPA group project
 Project Architecture.png is the proposed structure of our project, both backend and frontend. Any changes and/or improvements are welcome.
 
 Attempt 1.ipynb is where I have begun to play with the data to understand its structure and general makeup. 
+
+Website URL where data was found: https://mobilitydatabase.org/feeds/tld-716
+
+Producer download URL: https://www.metrolisboa.pt/google_transit/googleTransit.zip
+
