@@ -1,4 +1,4 @@
-import psycopg2  # uncomment if using PostgreSQL
+import psycopg2 
 import pandas as pd
 import json
 
@@ -10,15 +10,18 @@ class StationListGenerator:
         """
         self.db_path = db_path
     
-    def get_stations_sqlite(self):
+    def get_stations_postgres(self):
         """
-        Get stations from SQLite database
+        Get stations from PostgreSQL database
         """
         try:
-            # Connect to SQLite database
-            conn = sqlite3.connect(self.db_path)
+            conn = psycopg2.connect(
+                dbname="your_db_name",
+                user="your_username",
+                password="your_password",
+                host="your_host"
+            )
             
-            # GTFS stops table query
             query = """
             SELECT stop_id, stop_name
             FROM stops
@@ -27,9 +30,7 @@ class StationListGenerator:
             ORDER BY stop_name;
             """
             
-            # Read directly into pandas DataFrame
             df = pd.read_sql_query(query, conn)
-            
             conn.close()
             
             return df
@@ -37,7 +38,6 @@ class StationListGenerator:
         except Exception as e:
             print(f"Error fetching stations: {e}")
             return pd.DataFrame()
-
     def generate_html(self, stations_df):
         """
         Generate HTML with station dropdown
@@ -130,7 +130,7 @@ class StationListGenerator:
         
         return html
     
-    def save_html(self, html_content, output_path='index.html'):
+    def save_html(self, html_content, output_path='pages/index.html'):
         """
         Save the generated HTML to a file
         """
