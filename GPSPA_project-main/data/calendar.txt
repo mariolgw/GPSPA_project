@@ -1,0 +1,6 @@
+service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date
+WKDY,1,1,1,1,1,0,0,20230807,20311231
+SASUHO,0,0,0,0,0,1,1,20230807,20311231
+WKDYJMJ,1,0,1,0,0,1,0,20230731,20230806
+WKDYJMJ_ENC,0,1,0,1,1,0,0,20230731,20230806
+WKDYJMJ_MO,0,0,0,0,0,0,1,20230806,20230806
