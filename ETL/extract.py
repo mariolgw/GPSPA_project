@@ -2,20 +2,22 @@
 
 import pandas as pd
 
+path = '/Users/mario/Documents/NOVA IMS/Winter Semester/Group Project Seminar on Programming and Analysis/Group Project/GPSPA_project/data'
+
 #load the data
 
-agency = pd.read_csv('../data/agency.txt')
-cal_dates = pd.read_csv('../data/calendar_dates.txt')
-calendar = pd.read_csv('../data/calendar.txt')
-fare_attr = pd.read_csv('../data/fare_attributes.txt')
-fare_rules = pd.read_csv('../data/fare_rules.txt')
-feed_info = pd.read_csv('../data/feed_info.txt')
-frequencies = pd.read_csv('../data/frequencies.txt')
-routes = pd.read_csv('../data/routes.txt')
-stop_times = pd.read_csv('../data/stop_times.txt')
-stops = pd.read_csv('../data/stops.txt')
-transfers = pd.read_csv('../data/transfers.txt')
-trips = pd.read_csv('../data/trips.txt')
+agency = pd.read_csv(f'{path}/agency.txt')
+cal_dates = pd.read_csv(f'{path}/calendar_dates.txt')
+calendar = pd.read_csv(f'{path}/calendar.txt')
+fare_attr = pd.read_csv(f'{path}/fare_attributes.txt')
+fare_rules = pd.read_csv(f'{path}/fare_rules.txt')
+feed_info = pd.read_csv(f'{path}/feed_info.txt')
+frequencies = pd.read_csv(f'{path}/frequencies.txt')
+routes = pd.read_csv(f'{path}/routes.txt')
+stop_times = pd.read_csv(f'{path}/stop_times.txt')
+stops = pd.read_csv(f'{path}/stops.txt')
+transfers = pd.read_csv(f'{path}/transfers.txt')
+trips = pd.read_csv(f'{path}/trips.txt')
 
 # this is the "motherload". This is the schedule for each trip and will help us make the schedule at each 
 # station for each day. 
@@ -69,4 +71,3 @@ grouped_result = grouped_result.sort_values('stop_headsign')
 grouped_result.to_csv("ETL/data/grouped_result_fixed.txt", sep="\t", index=False)
 
 #Just missing the end line stations that instead of having arrival time will have departure time
-
