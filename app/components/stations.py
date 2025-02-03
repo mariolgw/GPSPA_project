@@ -1,55 +1,38 @@
 import pandas as pd
 import json
 
+data_path = '/Users/mario/Documents/NOVA IMS/Winter Semester/Group Project Seminar on Programming and Analysis/Group Project/GPSPA_project/data'
 class StationListGenerator:
-    def __init__(self, db_path):
-        """
-        Initialize with database connection details
-        :param db_path: Path to your SQLite database file
-        """
-        self.db_path = db_path
     
-    def get_stations_postgres(self):
+    def get_stations(self):
         """
-        Get stations from PostgreSQL database
+        Get stations names for frontend
         """
-        try:
-            conn = psycopg2.connect(
-                dbname="your_db_name",
-                user="your_username",
-                password="your_password",
-                host="your_host"
-            )
-            
-            query = """
-            SELECT stop_id, stop_name
-            FROM stops
-            WHERE location_type = 1
-            OR location_type IS NULL
-            ORDER BY stop_name;
-            """
-            
-            df = pd.read_sql_query(query, conn)
-            conn.close()
-            
-            return df
-            
-        except Exception as e:
-            print(f"Error fetching stations: {e}")
-            return pd.DataFrame()
+        
+        # Load data
+        stops = pd.read_csv(f'{data_path}/stops.txt')
+        
+        # Get unique stations
+        stations = stops['stop_name'].unique()
+        
+        return stations
+    
+    def save_stations_as_json(self, stations, output_path):
+        """
+        Save stations names as JSON
+        """
+        with open(output_path, 'w') as json_file:
+            json.dump(stations.tolist(), json_file)
 
 def main():
-    # Example usage
-    db_path = 'path/to/your/gtfs.db'  # Replace with your database path
-    generator = StationListGenerator(db_path)
+    generator = StationListGenerator()
     
-    # Get stations from database
-    stations = generator.get_stations_sqlite()
-    
-    # Generate and save HTML
-    if not stations.empty:
-        html_content = generator.generate_html(stations)
-        generator.save_html(html_content)
+    # Get stations
+    stations = generator.get_stations()
+
+    # Save stations as JSON
+    if stations.size > 0:
+        generator.save_stations_as_json(stations, 'app/components/stations.json')
 
 if __name__ == "__main__":
     main()
