@@ -1,14 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Transit Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro Transit Map</title>
+    <style>
+        /* Basic CSS for layout */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .header {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .map-container {
+            height: calc(100vh - 70px); /* Full height minus header */
+            background-color: #eee; /* Temporary background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-    <div id="map" style="height: 600px;"></div>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script>
-        // Map initialization code will go here
-    </script>
+    <!-- Header with search -->
+    <div class="header">
+        <input 
+            type="text" 
+            class="search-bar" 
+            placeholder="Search for a station..."
+        >
+    </div>
+
+    <!-- Map container -->
+    <div class="map-container">
+        <p>Map will go here</p>
+    </div>
 </body>
 </html>

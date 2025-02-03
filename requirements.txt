@@ -2,3 +2,5 @@ pandas
 flask
 sqlalchemy
 foliumgtfs-realtime-bindings
+psycopg2
+json
