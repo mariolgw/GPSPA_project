@@ -130,7 +130,7 @@ class StationListGenerator:
         
         return html
     
-    def save_html(self, html_content, output_path='pages/index.html'):
+    def save_html(self, html_content, output_path='../pages/index.html'):
         """
         Save the generated HTML to a file
         """

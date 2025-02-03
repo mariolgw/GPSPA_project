@@ -17,13 +17,51 @@
             padding: 1rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .search-bar {
+        .station-select {
             width: 100%;
             max-width: 400px;
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .station-select:hover {
+            border-color: #999;
+        }
+
+        .station-select:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
         }
 
         .map-container {
@@ -40,14 +78,61 @@
     <div class="header">
         <input 
             type="text" 
-            class="search-bar" 
+            class="station-select" 
             placeholder="Search for a station..."
+            oninput="filterStations()"
+            onclick="toggleDropdown()"
         >
+        <div class="dropdown-menu" id="dropdown-menu">
+            <!-- Dropdown items will be populated here -->
+        </div>
     </div>
 
-    <!-- Map container -->
-    <div class="map-container">
-        <p>Map will go here</p>
-    </div>
+    <script>
+        const stations = [
+            "Station 1",
+            "Station 2",
+            "Station 3",
+            "Station 4",
+            "Station 5"
+        ];
+
+        const dropdownMenu = document.getElementById('dropdown-menu');
+
+        function populateDropdown() {
+            dropdownMenu.innerHTML = '';
+            stations.forEach(station => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.textContent = station;
+                item.onclick = () => selectStation(station);
+                dropdownMenu.appendChild(item);
+            });
+        }
+
+        function filterStations() {
+            const input = document.querySelector('.station-select').value.toLowerCase();
+            const items = dropdownMenu.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                if (item.textContent.toLowerCase().includes(input)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle('active');
+        }
+
+        function selectStation(station) {
+            document.querySelector('.station-select').value = station;
+            dropdownMenu.classList.remove('active');
+        }
+
+        // Populate the dropdown menu on page load
+        populateDropdown();
+    </script>
 </body>
 </html>
