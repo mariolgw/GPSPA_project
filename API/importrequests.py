@@ -49,7 +49,7 @@ def download_and_unzip():
         print("Failed to download file. Check the URL.")
 
 # Schedule the script to run every Monday and Thursday
-schedule.every().monday.at("06:00").do(download_and_unzip)  # Runs at 08:00 AM
+schedule.every().tuesday.at("06:00").do(download_and_unzip)  # Runs at 06:00 AM
 schedule.every().thursday.at("06:00").do(download_and_unzip)
 
 print("Scheduler running... (Press Ctrl+C to stop)")
