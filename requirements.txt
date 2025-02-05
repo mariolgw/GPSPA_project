@@ -4,3 +4,4 @@ sqlalchemy
 foliumgtfs-realtime-bindings
 psycopg2
 json
+schedule
