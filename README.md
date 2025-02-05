@@ -1,5 +1,8 @@
-# GPSPA_project
+# GPSPA_project 
 Git repository for GPSPA group project
+Group members: Lourenço, Mário, Samuel
+
+The purpose of this project is to create a webmap where users can interact and see information abou the upcoming trains and schedules for each station of the Metropolitano de Lisboa netwrok.
 
 /data is a folder which contains the most up to date General Transit Feed Specification (here forth referred to as GTFS) data. This is data that will be fed into our database live once the API is set up and configured. For now, I have made this data available so the group can explore and understand the structure of the data our program will be receiving. 
 
