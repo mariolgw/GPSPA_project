@@ -41,47 +41,43 @@ function toggleDropdown() {
 }
 
 function showTimetable(station) {
-    let timetableContainer = document.getElementById('timetable-container');
-    if (!timetableContainer) {
-        timetableContainer = document.createElement('div');
-        timetableContainer.id = 'timetable-container';
-        document.body.appendChild(timetableContainer);
-    }
+    const timetableContainer = document.getElementById('timetable-container');
+    const stationName = document.getElementById('station-name');
+    const timetableBody = document.getElementById('timetable-body');
+
+    // Show the container
+    timetableContainer.style.display = 'block';
+    
+    // Update station name
+    stationName.textContent = `${station} - Current Timetable`;
 
     // Fetch and display the timetable (simulated data for now)
     const mockTimetable = [
-        { time: '09:00', destination: 'Downtown', platform: '1', status: 'On Time' },
-        { time: '09:15', destination: 'Airport', platform: '2', status: 'Delayed 5m' },
-        { time: '09:30', destination: 'South Station', platform: '1', status: 'On Time' }
+        { time: '09:00', direction: 'Downtown', status: 'On Time' },
+        { time: '09:15', direction: 'Airport', status: 'Delayed 5m' },
+        { time: '09:30', direction: 'South Station', status: 'On Time' }
     ];
 
-    const timetableHTML = `
-        <div class="timetable">
-            <h2>${station} - Current Timetable</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Destination</th>
-                        <th>Platform</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${mockTimetable.map(train => `
-                        <tr>
-                            <td>${train.time}</td>
-                            <td>${train.destination}</td>
-                            <td>${train.platform}</td>
-                            <td>${train.status}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
+    // Create the rows
+    timetableBody.innerHTML = mockTimetable.map(train => `
+        <tr>
+            <td>${train.time}</td>
+            <td>${train.direction}</td>
+            <td>${train.status}</td>
+        </tr>
+    `).join('');
+}
 
-    timetableContainer.innerHTML = timetableHTML;
+// When you're ready to fetch real data, you can use this function
+async function fetchTimetableData(station) {
+    try {
+        const response = await fetch(`/api/timetable/${station}`);
+        const timetableData = await response.json();
+        return timetableData;
+    } catch (error) {
+        console.error('Error fetching timetable:', error);
+        return null;
+    }
 }
 
 function selectStation(station) {
