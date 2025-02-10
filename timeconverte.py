@@ -1,52 +1,34 @@
-import re
+import csv
 
-def fix_invalid_times(times_list):
-    """
-    Correct times that surpass the 24-hour format by converting them to valid times.
+def correct_time(time_str):
+    hours, minutes, seconds = map(int, time_str.split(':'))
 
-    :param times_list: List of time strings in 'HH:MM:SS' format.
-    :return: List of corrected time strings.
-    """
-    corrected_times = []
+    if seconds >= 60:
+        minutes += seconds // 60
+        seconds = seconds % 60
 
-    for time_str in times_list:
-        match = re.match(r"(\d{2}):(\d{2}):(\d{2})", time_str)
-        if match:
-            hours, minutes, seconds = map(int, match.groups())
+    if minutes >= 60:
+        hours += minutes // 60
+        minutes = minutes % 60
 
-            # Adjust if hours exceed 23
-            if hours >= 24:
-                hours = hours % 24
+    if hours >= 24:
+        hours = hours % 24
 
-            # Format back to a time string with leading zeros
-            corrected_time = f"{hours:02}:{minutes:02}:{seconds:02}"
-            corrected_times.append(corrected_time)
-        else:
-            # If the time format is incorrect, keep it unchanged
-            corrected_times.append(time_str)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
-    return corrected_times
+input_file = 'ETL/data/stop_times_modified.txt'
+output_file = 'database\corrected_times_output.txt'
 
-# Example usage: Reading from the provided file
-input_file_path = 'data\grouped_result_fixed.txt'
-output_file_path = 'database\corrected_times_output.txt'
+with open(input_file, 'r', newline='') as infile, open(output_file, 'w', newline='') as outfile:
+    reader = csv.reader(infile)
+    writer = csv.writer(outfile)
 
-corrected_lines = []
+    # Write the header
+    header = next(reader)
+    writer.writerow(header)
 
-with open(input_file_path, 'r') as file:
-    for line in file:
-        times = re.findall(r"\d{2}:\d{2}:\d{2}", line)
-        corrected_times = fix_invalid_times(times)
+    for row in reader:
+        row[1] = correct_time(row[1])
+        writer.writerow(row)
 
-        # Replace old times with corrected times in the line
-        corrected_line = line
-        for old_time, new_time in zip(times, corrected_times):
-            corrected_line = corrected_line.replace(old_time, new_time, 1)
-
-        corrected_lines.append(corrected_line)
-
-# Write the corrected times to a new file
-with open(output_file_path, 'w') as output_file:
-    output_file.writelines(corrected_lines)
-
-print("Time correction completed. Check corrected_times_output.txt.")
+print(f"Corrected times have been written to {output_file}")

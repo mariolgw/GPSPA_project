@@ -13,21 +13,11 @@ DB_PARAMS = {
 
 # File paths for the input files
 stops_file_path = "data/stops.txt"
-arrival_times_file_path = "data/grouped_result_fixed.txt"
+arrival_times_file_path = "database\corrected_times_output.txt"
 station_info_file_path = "data/station_info (1).json"
 
-# Connect to the database
-try:
-    conn = psycopg2.connect(**DB_PARAMS)
-    cursor = conn.cursor()
-    print("Connected to the database successfully.")
-    
-    # Truncate the tables to remove old data
-    cursor.execute("TRUNCATE TABLE departure_times, station_info, stops RESTART IDENTITY CASCADE")
-    print("Old data removed successfully.")
-    
-    # Insert data into stops table
-    with open(stops_file_path, 'r') as file:
+def insert_stops(cursor, file_path):
+    with open(file_path, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the header row
         
@@ -37,21 +27,25 @@ try:
                 INSERT INTO stops (stop_id, stop_lat, stop_lon)
                 VALUES (%s, %s, %s)
             """, (stop_id, stop_lat, stop_lon))
-    
-    # Insert data into departure_times table
-    with open(arrival_times_file_path, 'r') as file:
-        reader = csv.reader(file, delimiter='\t')
+            # Debugging comment: Check if the row is being processed correctly
+            print(f"Inserted stop: {stop_id}, {stop_lat}, {stop_lon}")
+
+def insert_departure_times(cursor, file_path):
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file)
         next(reader)  # Skip the header row
         
         for row in reader:
             weekday, stop_id, departure_time, stop_headsign = row
             cursor.execute("""
-                INSERT INTO departure_times (weekday, stop_id, departure_time, stop_headsign)
+                INSERT INTO departure_times (weekday, departure_time ,stop_id ,stop_headsign)
                 VALUES (%s, %s, %s, %s)
             """, (weekday, stop_id, departure_time, stop_headsign))
-    
-    # Insert data into station_info table
-    with open(station_info_file_path, 'r') as file:
+            # Debugging comment: Check if the row is being processed correctly
+            print(f"Inserted departure time: {weekday}, {stop_id}, {departure_time}, {stop_headsign}")
+
+def insert_station_info(cursor, file_path):
+    with open(file_path, 'r') as file:
         data = json.load(file)
         
         for station, infos in data.items():
@@ -68,14 +62,32 @@ try:
                     INSERT INTO station_info (stop_id, trip_id, stop_url, stop_headsign, route_short_name, route_long_name, route_color)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """, (stop_id, trip_id, stop_url, stop_headsign, route_short_name, route_long_name, route_color))
-    
+                # Debugging comment: Check if the row is being processed correctly
+                print(f"Inserted station info: {stop_id}, {trip_id}, {stop_url}, {stop_headsign}, {route_short_name}, {route_long_name}, {route_color}")
+
+def main():
+    # Connect to the database
+    conn = psycopg2.connect(**DB_PARAMS)
+    cursor = conn.cursor()
+    print("Connected to the database successfully.")
+
+    # Truncate the tables to remove old data
+    cursor.execute("TRUNCATE TABLE departure_times, station_info, stops RESTART IDENTITY CASCADE")
+    print("Old data removed successfully.")
+
+    # Insert data into tables
+    insert_stops(cursor, stops_file_path)
+    insert_departure_times(cursor, arrival_times_file_path)
+    insert_station_info(cursor, station_info_file_path)
+
     # Commit changes and close the connection
     conn.commit()
     print("Data added successfully!")
-except Exception as e:
-    print("Error:", e)
-finally:
+
     if conn:
         cursor.close()
         conn.close()
         print("Database connection closed.")
+
+if __name__ == "__main__":
+    main()
