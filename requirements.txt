@@ -5,3 +5,4 @@ foliumgtfs-realtime-bindings
 psycopg2
 json
 schedule
+requests
