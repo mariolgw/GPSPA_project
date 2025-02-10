@@ -13,7 +13,7 @@ DB_PARAMS = {
 
 # File paths for the input files
 stops_file_path = "data/stops.txt"
-arrival_times_file_path = "data\grouped_result_fixed.txt"
+arrival_times_file_path = "data/grouped_result_fixed.txt"
 station_info_file_path = "data/station_info (1).json"
 
 # Connect to the database
@@ -23,7 +23,7 @@ try:
     print("Connected to the database successfully.")
     
     # Truncate the tables to remove old data
-    cursor.execute("TRUNCATE TABLE arrival_times, station_info, stops RESTART IDENTITY CASCADE")
+    cursor.execute("TRUNCATE TABLE departure_times, station_info, stops RESTART IDENTITY CASCADE")
     print("Old data removed successfully.")
     
     # Insert data into stops table
@@ -38,25 +38,17 @@ try:
                 VALUES (%s, %s, %s)
             """, (stop_id, stop_lat, stop_lon))
     
-    # Insert data into arrival_times table
+    # Insert data into departure_times table
     with open(arrival_times_file_path, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
         next(reader)  # Skip the header row
         
         for row in reader:
-            stop_id, stop_headsign, arrival_time = row
-            # Ensure arrival_time is a single time value
-            if isinstance(arrival_time, list):
-                for time in arrival_time:
-                    cursor.execute("""
-                        INSERT INTO arrival_times (stop_id, stop_headsign, arrival_time)
-                        VALUES (%s, %s, %s)
-                    """, (stop_id, stop_headsign, time))
-            else:
-                cursor.execute("""
-                    INSERT INTO arrival_times (stop_id, stop_headsign, arrival_time)
-                    VALUES (%s, %s, %s)
-                """, (stop_id, stop_headsign, arrival_time))
+            weekday, stop_id, departure_time, stop_headsign = row
+            cursor.execute("""
+                INSERT INTO departure_times (weekday, stop_id, departure_time, stop_headsign)
+                VALUES (%s, %s, %s, %s)
+            """, (weekday, stop_id, departure_time, stop_headsign))
     
     # Insert data into station_info table
     with open(station_info_file_path, 'r') as file:

@@ -6,10 +6,12 @@ CREATE TABLE stops (
 );
 
 -- Create table for arrival times
-CREATE TABLE arrival_times (
-    stop_id VARCHAR(50),
-    stop_headsign VARCHAR(100),
-    arrival_time TIME,
+CREATE TABLE departure_times (
+    id SERIAL PRIMARY KEY, -- Unique identifier for each row
+    weekday VARCHAR(10) NOT NULL, -- WKDY, SAT, SUN, etc.
+    stop_id VARCHAR(50) NOT NULL, -- FK reference to the stops table
+    departure_time TIME NOT NULL, -- Valid time for each stop
+    stop_headsign VARCHAR(100) NOT NULL, -- Consistent with station_info
     FOREIGN KEY (stop_id) REFERENCES stops(stop_id)
 );
 
