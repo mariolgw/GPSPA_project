@@ -1,5 +1,6 @@
 import psycopg2
 import csv
+import json
 
 # Database connection parameters
 DB_PARAMS = {
@@ -10,8 +11,10 @@ DB_PARAMS = {
     "port": 5432          # Default PostgreSQL port
 }
 
-# File path for the CSV file
-csv_file_path = "processed_file.csv"
+# File paths for the input files
+stops_file_path = "data/stops.txt"
+arrival_times_file_path = "data\grouped_result_fixed.txt"
+station_info_file_path = "data/station_info (1).json"
 
 # Connect to the database
 try:
@@ -19,17 +22,60 @@ try:
     cursor = conn.cursor()
     print("Connected to the database successfully.")
     
-    # Open and read the CSV file
-    with open(csv_file_path, 'r') as file:
+    # Truncate the tables to remove old data
+    cursor.execute("TRUNCATE TABLE arrival_times, station_info, stops RESTART IDENTITY CASCADE")
+    print("Old data removed successfully.")
+    
+    # Insert data into stops table
+    with open(stops_file_path, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the header row
         
-        # Insert each row into the table
         for row in reader:
+            stop_id, _, _, stop_lat, stop_lon, _, _, _, _ = row
             cursor.execute("""
-                INSERT INTO your_table_name (column1, column2, column3)
+                INSERT INTO stops (stop_id, stop_lat, stop_lon)
                 VALUES (%s, %s, %s)
-            """, row)
+            """, (stop_id, stop_lat, stop_lon))
+    
+    # Insert data into arrival_times table
+    with open(arrival_times_file_path, 'r') as file:
+        reader = csv.reader(file, delimiter='\t')
+        next(reader)  # Skip the header row
+        
+        for row in reader:
+            stop_id, stop_headsign, arrival_time = row
+            # Ensure arrival_time is a single time value
+            if isinstance(arrival_time, list):
+                for time in arrival_time:
+                    cursor.execute("""
+                        INSERT INTO arrival_times (stop_id, stop_headsign, arrival_time)
+                        VALUES (%s, %s, %s)
+                    """, (stop_id, stop_headsign, time))
+            else:
+                cursor.execute("""
+                    INSERT INTO arrival_times (stop_id, stop_headsign, arrival_time)
+                    VALUES (%s, %s, %s)
+                """, (stop_id, stop_headsign, arrival_time))
+    
+    # Insert data into station_info table
+    with open(station_info_file_path, 'r') as file:
+        data = json.load(file)
+        
+        for station, infos in data.items():
+            for info in infos:
+                stop_id = info.get("stop_id")
+                trip_id = info.get("trip_id")
+                stop_url = info.get("stop_url")
+                stop_headsign = info.get("stop_headsign")
+                route_short_name = info.get("route_short_name")
+                route_long_name = info.get("route_long_name")
+                route_color = info.get("route_color")
+                
+                cursor.execute("""
+                    INSERT INTO station_info (stop_id, trip_id, stop_url, stop_headsign, route_short_name, route_long_name, route_color)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (stop_id, trip_id, stop_url, stop_headsign, route_short_name, route_long_name, route_color))
     
     # Commit changes and close the connection
     conn.commit()
