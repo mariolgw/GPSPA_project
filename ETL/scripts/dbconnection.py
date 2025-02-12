@@ -13,7 +13,7 @@ DB_PARAMS = {
 
 # File paths for the input files
 stops_file_path = "data/stops.txt"
-arrival_times_file_path = "ETL\data\stop_times_output.txt"
+arrival_times_file_path = "ETL/data/stop_times_output.txt"
 station_info_file_path = "data/station_info (1).json"
 
 def insert_stops(cursor, file_path):
@@ -22,13 +22,13 @@ def insert_stops(cursor, file_path):
         next(reader)  # Skip the header row
         
         for row in reader:
-            stop_id, _, _, stop_lat, stop_lon, _, _, _, _ = row
+            stop_id, stop_name, _, stop_lat, stop_lon, _, _, _, _ = row
             cursor.execute("""
-                INSERT INTO stops (stop_id, stop_lat, stop_lon)
-                VALUES (%s, %s, %s)
-            """, (stop_id, stop_lat, stop_lon))
+                INSERT INTO stops (stop_id,stop_headsign, stop_lat, stop_lon)
+                VALUES (%s,%s, %s, %s)
+            """, (stop_id,stop_name, stop_lat, stop_lon))
             # Debugging comment: Check if the row is being processed correctly
-            print(f"Inserted stop: {stop_id}, {stop_lat}, {stop_lon}")
+            print(f"Inserted stop: {stop_id},{stop_name} {stop_lat}, {stop_lon}")
 
 def insert_departure_times(cursor, file_path):
     with open(file_path, 'r') as file:
