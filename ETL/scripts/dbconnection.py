@@ -21,13 +21,13 @@ def insert_stops(cursor, file_path):
         next(reader)  # Skip the header row
         
         for row in reader:
-            stop_id, _, _, stop_lat, stop_lon, _, _, _, _ = row
+            stop_id, stop_name, _, stop_lat, stop_lon, _, _, _, _ = row
             cursor.execute("""
-                INSERT INTO stops (stop_id, stop_lat, stop_lon)
-                VALUES (%s, %s, %s)
-            """, (stop_id, stop_lat, stop_lon))
+                INSERT INTO stops (stop_id,stop_headsign, stop_lat, stop_lon)
+                VALUES (%s,%s, %s, %s)
+            """, (stop_id,stop_name, stop_lat, stop_lon))
             # Debugging comment: Check if the row is being processed correctly
-            print(f"Inserted stop: {stop_id}, {stop_lat}, {stop_lon}")
+            print(f"Inserted stop: {stop_id},{stop_name} {stop_lat}, {stop_lon}")
 
 def insert_departure_times(cursor, file_path):
     with open(file_path, 'r') as file:

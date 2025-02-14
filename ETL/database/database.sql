@@ -1,13 +1,29 @@
--- Create table for stops
+-- 1. Create table for stops first
 CREATE TABLE stops (
     stop_id VARCHAR(50) PRIMARY KEY,
-    stop_name VARCHAR(100),
+    stop_headsign VARCHAR(100),
     stop_lat DECIMAL(9, 6),
     stop_lon DECIMAL(9, 6),
-    geom geometry(POINT, 4326)
+    geom geometry(POINT, 4326) -- Geometry column for spatial data
 );
 
--- Create table for arrival times
+-- 2. Create the function to populate the geom column
+CREATE OR REPLACE FUNCTION create_geom()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    NEW.geom := ST_SetSRID(ST_MakePoint(NEW.stop_lon, NEW.stop_lat), 4326);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 3. Create the trigger AFTER the stops table exists
+CREATE TRIGGER insert_rides_in_pa
+BEFORE INSERT ON stops
+FOR EACH ROW
+EXECUTE FUNCTION create_geom();
+
+-- 4. Create table for departure times
 CREATE TABLE departure_times (
     id SERIAL PRIMARY KEY, -- Unique identifier for each row
     weekday VARCHAR(10) NOT NULL, -- WKDY, SAT, SUN, etc.
@@ -17,9 +33,9 @@ CREATE TABLE departure_times (
     FOREIGN KEY (stop_id) REFERENCES stops(stop_id)
 );
 
--- Create table for station info
+-- 5. Create table for station info
 CREATE TABLE station_info (
-    stop_id VARCHAR(50) PRIMARY key,
+    stop_id VARCHAR(50) PRIMARY KEY,
     trip_id VARCHAR(50),
     stop_url TEXT,
     stop_headsign VARCHAR(100),
@@ -28,19 +44,3 @@ CREATE TABLE station_info (
     route_color VARCHAR(10),
     FOREIGN KEY (stop_id) REFERENCES stops(stop_id)
 );
-
-
-CREATE Or REPLACE FUNCTION create_geom()
-RETURNS TRIGGER AS
-$$
-BEGIN
-	new.geom :=	ST_SetSRID(ST_MakePoint(new.stop_lon, new.stop_lat), 4326);
-	RETURN new;
-END;
-$$
-LANGUAGE 'plpgsql';
-
-CREATE TRIGGER insert_rides_in_pa
-AFTER INSERT ON stops
-FOR EACH ROW
-EXECUTE PROCEDURE create_geom();
