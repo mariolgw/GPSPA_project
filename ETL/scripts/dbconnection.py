@@ -7,13 +7,12 @@ DB_PARAMS = {
     "dbname": "metro",
     "user": "postgres",
     "password": "postgres",
-    "host": "localhost",  # Use the correct host, e.g., "127.0.0.1" or remote address
     "port": 5432          # Default PostgreSQL port
 }
 
 # File paths for the input files
 stops_file_path = "data/stops.txt"
-arrival_times_file_path = "ETL\data\stop_times_output.txt"
+arrival_times_file_path = "ETL/data/stop_times_output.txt"
 station_info_file_path = "data/station_info (1).json"
 
 def insert_stops(cursor, file_path):
