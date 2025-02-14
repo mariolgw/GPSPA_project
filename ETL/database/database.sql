@@ -1,7 +1,7 @@
 -- 1. Create table for stops first
 CREATE TABLE stops (
     stop_id VARCHAR(50) PRIMARY KEY,
-    stop_headsign VARCHAR(100),
+    stop_name VARCHAR(100),
     stop_lat DECIMAL(9, 6),
     stop_lon DECIMAL(9, 6),
     geom geometry(POINT, 4326) -- Geometry column for spatial data
@@ -26,7 +26,7 @@ EXECUTE FUNCTION create_geom();
 -- 4. Create table for departure times
 CREATE TABLE departure_times (
     id SERIAL PRIMARY KEY, -- Unique identifier for each row
-    weekday VARCHAR(10) NOT NULL, -- WKDY, SAT, SUN, etc.
+    weekday VARCHAR(15) NOT NULL, -- WKDY, SAT, SUN, etc.
     stop_id VARCHAR(50) NOT NULL, -- FK reference to the stops table
     departure_time TIME NOT NULL, -- Valid time for each stop
     stop_headsign VARCHAR(100) NOT NULL, -- Consistent with station_info
