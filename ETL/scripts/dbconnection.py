@@ -23,7 +23,7 @@ def insert_stops(cursor, file_path):
         for row in reader:
             stop_id, stop_name, _, stop_lat, stop_lon, _, _, _, _ = row
             cursor.execute("""
-                INSERT INTO stops (stop_id,stop_headsign, stop_lat, stop_lon)
+                INSERT INTO stops (stop_id,stop_name, stop_lat, stop_lon)
                 VALUES (%s,%s, %s, %s)
             """, (stop_id,stop_name, stop_lat, stop_lon))
             # Debugging comment: Check if the row is being processed correctly
