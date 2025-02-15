@@ -32,6 +32,7 @@ def insert_stops(cursor, file_path):
             cursor.execute("""
                 INSERT INTO stops (stop_id,stop_name, stop_lat, stop_lon)
                 VALUES (%s,%s, %s, %s)
+                ON CONFLICT (stop_id) DO NOTHING
             """, (stop_id,stop_name, stop_lat, stop_lon))
             # Debugging comment: Check if the row is being processed correctly
             print(f"Inserted stop: {stop_id},{stop_name} {stop_lat}, {stop_lon}")
@@ -81,18 +82,13 @@ def insert_station_info(cursor, file_path):
                 cursor.execute("""
                     INSERT INTO station_info (stop_id, trip_id, stop_url, stop_headsign, route_short_name, route_long_name, route_color)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (stop_id) DO NOTHING
                 """, (stop_id, trip_id, stop_url, stop_headsign, route_short_name, route_long_name, route_color))
                 # Debugging comment: Check if the row is being processed correctly
                 print(f"Inserted station info: {stop_id}, {trip_id}, {stop_url}, {stop_headsign}, {route_short_name}, {route_long_name}, {route_color}")
 
 def main():
-<<<<<<< HEAD
     
-=======
-    """
-    Main function to connect to the database, truncate tables, and insert data.
-    """
->>>>>>> a1a89848e273f632beeef20e211c2ecb6a2ef2ee
     # Connect to the database
     conn = psycopg2.connect(**DB_PARAMS)
     cursor = conn.cursor()
