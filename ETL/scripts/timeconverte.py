@@ -16,19 +16,22 @@ def correct_time(time_str):
 
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
-input_file = 'ETL/data/stop_times_modified.txt'
-output_file = 'ETL/data/stop_times_output.txt'
+def process_times(input_file, output_file):
+    with open(input_file, 'r', newline='') as infile, open(output_file, 'w', newline='') as outfile:
+        reader = csv.reader(infile)
+        writer = csv.writer(outfile)
 
-with open(input_file, 'r', newline='') as infile, open(output_file, 'w', newline='') as outfile:
-    reader = csv.reader(infile)
-    writer = csv.writer(outfile)
+        # Write the header
+        header = next(reader)
+        writer.writerow(header)
 
-    # Write the header
-    header = next(reader)
-    writer.writerow(header)
+        for row in reader:
+            row[1] = correct_time(row[1])
+            writer.writerow(row)
 
-    for row in reader:
-        row[1] = correct_time(row[1])
-        writer.writerow(row)
+    print(f"Corrected times have been written to {output_file}")
 
-print(f"Corrected times have been written to {output_file}")
+if __name__ == "__main__":
+    input_file = 'ETL/data/stop_times_modified.txt'
+    output_file = 'ETL/data/stop_times_output.txt'
+    process_times(input_file, output_file)

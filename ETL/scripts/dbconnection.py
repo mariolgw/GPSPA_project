@@ -65,6 +65,7 @@ def insert_station_info(cursor, file_path):
                 print(f"Inserted station info: {stop_id}, {trip_id}, {stop_url}, {stop_headsign}, {route_short_name}, {route_long_name}, {route_color}")
 
 def main():
+    
     # Connect to the database
     conn = psycopg2.connect(**DB_PARAMS)
     cursor = conn.cursor()
