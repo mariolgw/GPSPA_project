@@ -1,4 +1,4 @@
-trip_id,arrival_time,departure_time,stop_id,quenstop_sece,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
 A_WKDY_11,06:30:00,06:30:00,RB,1,Santa Apolónia,0,0,
 A_WKDY_11,06:31:24,06:31:54,AS,2,Santa Apolónia,0,0,
 A_WKDY_11,06:33:44,06:34:07,AF,3,Santa Apolónia,0,0,
@@ -14,7 +14,7 @@ A_WKDY_11,06:48:37,06:48:58,PA,12,Santa Apolónia,0,0,
 A_WKDY_11,06:49:53,06:50:20,MP1,13,Santa Apolónia,0,0,
 A_WKDY_11,06:51:25,06:51:46,AV,14,Santa Apolónia,0,0,
 A_WKDY_11,06:52:32,06:52:55,RE,15,Santa Apolónia,0,0,
-A_WKDY_11,06:53:59,06:54:24,BC1,16,Santa Apolónia,0,0,\
+A_WKDY_11,06:53:59,06:54:24,BC1,16,Santa Apolónia,0,0,
 A_WKDY_11,06:55:43,06:56:04,TP,17,Santa Apolónia,0,0,
 A_WKDY_11,06:58:13,06:58:13,SP,18,Santa Apolónia,0,0,
 A_WKDY_01,06:30:00,06:30:00,SP,1,Reboleira,0,0,

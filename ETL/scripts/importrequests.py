@@ -10,8 +10,7 @@ import time
 GTFS_URL = "https://www.metrolisboa.pt/google_transit/googleTransit.zip"
 
 # Destination folder
-ETL_DIR = Path(os.path.dirname(__file__)).parent / "ETL" / "data"  # Assuming ETL/data directory is at the same level as API directory
-print(ETL_DIR)
+ETL_DIR = Path(os.path.dirname(__file__)).parent / "data"  # Assuming ETL/data directory is at the same level as API directory
 ZIP_FILE = ETL_DIR / "googleTransit.zip"
 
 
@@ -19,6 +18,7 @@ ZIP_FILE = ETL_DIR / "googleTransit.zip"
 ETL_DIR.mkdir(parents=True, exist_ok=True)
 
 def download_and_unzip():
+
     """Downloads and unzips the GTFS data"""
     print(f"[{datetime.datetime.now()}] Downloading GTFS data...")
 
@@ -47,11 +47,5 @@ def download_and_unzip():
         print("Zip file removed.")
     else:
         print("Failed to download file. Check the URL.")
-
-# Schedule the script to run every Monday and Thursday
-schedule.every().tuesday.at("06:00").do(download_and_unzip)  # Runs at 06:00 AM
-schedule.every().thursday.at("06:00").do(download_and_unzip)
-
-print("Scheduler running... (Press Ctrl+C to stop)")
 
 download_and_unzip()
