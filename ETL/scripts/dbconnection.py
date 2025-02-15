@@ -16,6 +16,13 @@ arrival_times_file_path = "ETL/data/stop_times_output.txt"
 station_info_file_path = "data/station_info (1).json"
 
 def insert_stops(cursor, file_path):
+    """
+    Inserts stop data into the stops table.
+
+    Args:
+        cursor (psycopg2.cursor): The database cursor.
+        file_path (str): The path to the stops data file.
+    """
     with open(file_path, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the header row
@@ -30,6 +37,13 @@ def insert_stops(cursor, file_path):
             print(f"Inserted stop: {stop_id},{stop_name} {stop_lat}, {stop_lon}")
 
 def insert_departure_times(cursor, file_path):
+    """
+    Inserts departure times data into the departure_times table.
+
+    Args:
+        cursor (psycopg2.cursor): The database cursor.
+        file_path (str): The path to the departure times data file.
+    """
     with open(file_path, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the header row
@@ -44,6 +58,13 @@ def insert_departure_times(cursor, file_path):
             print(f"Inserted departure time: {weekday}, {stop_id}, {departure_time}, {stop_headsign}")
 
 def insert_station_info(cursor, file_path):
+    """
+    Inserts station information data into the station_info table.
+
+    Args:
+        cursor (psycopg2.cursor): The database cursor.
+        file_path (str): The path to the station information data file.
+    """
     with open(file_path, 'r') as file:
         data = json.load(file)
         
@@ -65,7 +86,13 @@ def insert_station_info(cursor, file_path):
                 print(f"Inserted station info: {stop_id}, {trip_id}, {stop_url}, {stop_headsign}, {route_short_name}, {route_long_name}, {route_color}")
 
 def main():
+<<<<<<< HEAD
     
+=======
+    """
+    Main function to connect to the database, truncate tables, and insert data.
+    """
+>>>>>>> a1a89848e273f632beeef20e211c2ecb6a2ef2ee
     # Connect to the database
     conn = psycopg2.connect(**DB_PARAMS)
     cursor = conn.cursor()

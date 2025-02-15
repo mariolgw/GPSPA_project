@@ -18,8 +18,14 @@ ZIP_FILE = ETL_DIR / "googleTransit.zip"
 ETL_DIR.mkdir(parents=True, exist_ok=True)
 
 def download_and_unzip():
+    """
+    Downloads and unzips the GTFS data from the specified URL.
 
-    """Downloads and unzips the GTFS data"""
+    Downloads the GTFS data zip file from the GTFS_URL, saves it to the ZIP_FILE path,
+    and extracts its contents to the ETL_DIR directory.
+
+    Prints the status of the download and extraction process.
+    """
     print(f"[{datetime.datetime.now()}] Downloading GTFS data...")
 
     headers = {
@@ -47,5 +53,6 @@ def download_and_unzip():
         print("Zip file removed.")
     else:
         print("Failed to download file. Check the URL.")
-
+        
+# Call the function to download and unzip the GTFS data
 download_and_unzip()
