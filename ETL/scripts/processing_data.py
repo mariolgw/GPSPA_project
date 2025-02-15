@@ -1,9 +1,19 @@
 
 def process_data(input_file):
+    """
+    Processes the stop times data by removing specified columns and modifying the trip_id.
+
+    Args:
+        input_file (str): The path to the input stop times data file.
+
+    Returns:
+        str: The path to the output file with the processed data.
+    """
 
     import pandas as pd
     import os
-
+    
+    #Load the necessary data files
     routes = pd.read_csv('data/routes.txt')
     stop_times = pd.read_csv('data/stop_times.txt')
     stops = pd.read_csv('data/stops.txt')
@@ -40,4 +50,5 @@ def process_data(input_file):
     print(f"Output file created at: {output_file}")
     return output_file
 
+# Call the process_data function with the path to the input file
 process_data('data/stop_times.txt')  # Adjust the path as needed
