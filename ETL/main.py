@@ -17,6 +17,7 @@ from scripts.dbconnection import main as db_main, DB_PARAMS, stops_file_path, ar
 from scripts.dbconnection import insert_stops, insert_departure_times, insert_station_info
 
 def main():
+    
     # Step 1: Download and unzip the file
     download_and_unzip()
     
@@ -31,8 +32,8 @@ def main():
     
     # Step 4: Insert into the database
     db_main()
-    
-    conn = psycopg2.connect(**DB_PARAMS) #declaring vaiable conn to connect to the database
+
+    conn = psycopg2.connect(**DB_PARAMS) #declaring vaiable to connect to the database
     cursor = conn.cursor()
 
     insert_stops(cursor, stops_file_path)

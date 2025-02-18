@@ -35,22 +35,22 @@ def download_and_unzip():
 
     # Download the file
     response = requests.get(GTFS_URL, headers=headers, stream=True)
-    print(response.status_code)
+    
+    
     if response.status_code == 200:
         with open(ZIP_FILE, "wb") as file:
             for chunk in response.iter_content(chunk_size=1024):
                 file.write(chunk)
-        print("Download complete!")
+        
 
         # Unzip the file
-        print("Unzipping...")
         with zipfile.ZipFile(ZIP_FILE, "r") as zip_ref:
             zip_ref.extractall(ETL_DIR)
-        print(f"Files extracted to {ETL_DIR}")
+        
 
         # Optionally, delete the zip file after extraction
         os.remove(ZIP_FILE)
-        print("Zip file removed.")
+        
     else:
         print("Failed to download file. Check the URL.")
         

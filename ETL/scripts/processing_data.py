@@ -41,13 +41,13 @@ def process_data(input_file):
         # Process each line in the input file
         for line in infile:
             fields = line.strip().split(',')
+
             # Modify the trip_id to keep only the string between the underscores
             trip_id = fields[0].split('_')[1] if len(fields[0].split('_')) > 1 else fields[0]
             fields[0] = trip_id
             modified_fields = [field for i, field in enumerate(fields) if i not in indices_to_remove]
             outfile.write(','.join(modified_fields) + '\n')
 
-    print(f"Output file created at: {output_file}")
     return output_file
 
 # Call the process_data function with the path to the input file

@@ -29,6 +29,7 @@ def correct_time(time_str):
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 def process_times(input_file, output_file):
+    
     with open(input_file, 'r', newline='') as infile, open(output_file, 'w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
@@ -41,7 +42,6 @@ def process_times(input_file, output_file):
             row[1] = correct_time(row[1])
             writer.writerow(row)
 
-    print(f"Corrected times have been written to {output_file}")
 
 if __name__ == "__main__":
     input_file = 'ETL/data/stop_times_modified.txt'
