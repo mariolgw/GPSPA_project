@@ -55,4 +55,3 @@ def download_and_unzip():
         print("Failed to download file. Check the URL.")
         
 # Call the function to download and unzip the GTFS data
-download_and_unzip()
