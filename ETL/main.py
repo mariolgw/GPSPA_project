@@ -22,7 +22,7 @@ def main():
     download_and_unzip()
     
     # Step 2: Process the data
-    processed_data_file = process_data('ETL/data/stop_times.txt')  # Adjust the path as needed
+    processed_data_file = process_data('data/stop_times.txt')  # Adjust the path as needed
     
     # Step 3: Convert the time
 
