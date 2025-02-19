@@ -36,9 +36,7 @@ def main():
     conn = psycopg2.connect(**DB_PARAMS) #declaring vaiable to connect to the database
     cursor = conn.cursor()
 
-    insert_stops(cursor, stops_file_path)
-    insert_departure_times(cursor, arrival_times_file_path)
-    insert_station_info(cursor, station_info_file_path)
+   
 
 if __name__ == "__main__":
     main()
