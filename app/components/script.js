@@ -10,24 +10,19 @@ const timetableContainer = document.getElementById('timetable-container');
 
 // Store refresh intervals for cleanup
 const refreshIntervals = new Map();
+const countdownIntervals = new Map();
 
 async function fetchStations() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/station_names`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch stations');
-        }
-        const stations = await response.json();
-        populateDropdown(stations);
-    } catch (error) {
-        console.error('Error fetching stations:', error);
-        alert('Failed to load stations. Please try again later.');
+    const response = await fetch(`${API_BASE_URL}/station_names`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch stations');
     }
+    const stations = await response.json();
+    populateDropdown(stations);
 }
 
 function populateDropdown(stations) {
     dropdownMenu.innerHTML = '';
-    // Group stations by name to handle multiple stop_ids
     const stationMap = new Map();
     
     stations.forEach(station => {
@@ -37,7 +32,6 @@ function populateDropdown(stations) {
         stationMap.get(station.stop_name).push(station.stop_id);
     });
 
-    // Create dropdown items for unique station names
     stationMap.forEach((stopIds, stationName) => {
         const item = document.createElement('div');
         item.className = 'dropdown-item';
@@ -64,141 +58,129 @@ function toggleDropdown() {
     dropdownMenu.classList.toggle('active');
 }
 
-async function getStationInfo(stopId) {
-    const response = await fetch(`${API_BASE_URL}/station_info?stop_id=${stopId}`);
-    if (!response.ok) {
-        throw new Error('Failed to fetch station info');
-    }
-    return await response.json();
-}
-
-async function updateTimetable(stopId) {
-    const tbody = document.getElementById(`timetable-body-${stopId}`);
-    try {
-        const response = await fetch(`${API_BASE_URL}/next_trains?stop_id=${stopId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch timetable');
-        }
-        const data = await response.json();
-
-        if (data.error) {
-            tbody.innerHTML = '<tr><td colspan="3" class="text-center">No upcoming trains</td></tr>';
-            return;
-        }
-
-        // Clear existing content
-        tbody.innerHTML = '';
-
-        // Create a table section for each direction
-        Object.entries(data.directions).forEach(([direction, trains]) => {
-            // Add direction header
-            const headerRow = document.createElement('tr');
-            headerRow.innerHTML = `
-                <td colspan="3" class="direction-header">
-                    Direction: ${direction}
-                </td>
-            `;
-            tbody.appendChild(headerRow);
-
-            // Add trains for this direction
-            trains.forEach(train => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="departure-time">${train.departure_time}</td>
-                    <td class="countdown">${train.countdown}</td>
-                    <td class="direction">${train.stop_headsign}</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            // Add a spacer row between directions
-            const spacerRow = document.createElement('tr');
-            spacerRow.innerHTML = '<td colspan="3" class="direction-spacer"></td>';
-            tbody.appendChild(spacerRow);
-        });
-    } catch (error) {
-        console.error(`Error updating timetable for stop ${stopId}:`, error);
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center">Failed to load timetable</td></tr>';
-    }
-}
-
-async function createTimetableSection(stopId, stationInfo) {
-    const section = document.createElement('div');
-    section.className = 'timetable-section';
-    section.id = `timetable-${stopId}`;
-
-    // Create table
-    const table = document.createElement('table');
-    table.className = 'w-full';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Time</th>
-                <th>Countdown</th>
-                <th>Direction</th>
-            </tr>
-        </thead>
-        <tbody id="timetable-body-${stopId}">
-            <tr><td colspan="3" class="text-center">Loading...</td></tr>
-        </tbody>
-    `;
-    section.appendChild(table);
-
-    return section;
-}
-
 async function showTimetables(stationName, stopIds) {
     timetableContainer.style.display = 'block';
     timetableContainer.innerHTML = '';
     clearAllIntervals();
 
-    // Create station header with route badges
     const stationHeader = document.createElement('div');
     stationHeader.className = 'station-header';
     
-    // Create station name element
     const stationNameEl = document.createElement('h2');
     stationNameEl.className = 'station-name';
     stationNameEl.textContent = stationName;
     stationHeader.appendChild(stationNameEl);
 
-    // Container for route badges
     const badgeContainer = document.createElement('div');
     badgeContainer.className = 'route-badges';
     
     timetableContainer.appendChild(stationHeader);
 
-    // Create and populate timetable for each stop_id
+    // Keep track of routes we've already added badges for
+    const addedRoutes = new Set();
+
     for (const stopId of stopIds) {
-        try {
-            const stationInfo = await getStationInfo(stopId);
+        const response = await fetch(`${API_BASE_URL}/station_info?stop_id=${stopId}`);
+        if (!response.ok) continue;
+        
+        const stationInfoList = await response.json();
+        if (!stationInfoList || !stationInfoList.length) continue;
+        
+        for (const stationInfo of stationInfoList) {
+            // Create route badge if we haven't seen this route
+            if (!addedRoutes.has(stationInfo.route_long_name)) {
+                const badge = document.createElement('span');
+                badge.className = 'route-badge';
+                badge.style.backgroundColor = `#${stationInfo.route_color || '6B7280'}`;
+                badge.textContent = stationInfo.route_long_name;
+                badgeContainer.appendChild(badge);
+                addedRoutes.add(stationInfo.route_long_name);
+            }
             
-            // Create route badge
-            const badge = document.createElement('span');
-            badge.className = 'route-badge';
-            badge.style.backgroundColor = `#${stationInfo.route_color || '6B7280'}`;
-            badge.textContent = stationInfo.route_short_name || 'Train';
-            badgeContainer.appendChild(badge);
-            
-            const timetableSection = await createTimetableSection(stopId, stationInfo);
+            // Create timetable section
+            const timetableSection = await createTimetableSection(stopId);
             timetableContainer.appendChild(timetableSection);
             
-            // Initial update and set refresh interval
             await updateTimetable(stopId);
-            const intervalId = setInterval(() => updateTimetable(stopId), 30000);
-            refreshIntervals.set(stopId, intervalId);
-        } catch (error) {
-            console.error(`Error setting up timetable for stop ${stopId}:`, error);
+            
+            // Set up intervals
+            const timetableInterval = setInterval(() => updateTimetable(stopId), 30000);
+            refreshIntervals.set(stopId, timetableInterval);
+            
+            const countdownInterval = setInterval(() => updateCountdown(stopId), 1000);
+            countdownIntervals.set(stopId, countdownInterval);
         }
     }
 
-    // Add badges after collecting all routes
     stationHeader.appendChild(badgeContainer);
+}
+async function updateTimetable(stopId) {
+    const tbody = document.getElementById(`timetable-body-${stopId}`);
+    const response = await fetch(`${API_BASE_URL}/next_trains?stop_id=${stopId}`);
+    if (!response.ok) {
+        tbody.innerHTML = '<tr><td colspan="2" class="text-center">Failed to load timetable</td></tr>';
+        return;
+    }
+    
+    const data = await response.json();
+    if (!data.directions) {
+        tbody.innerHTML = '<tr><td colspan="2" class="text-center">No upcoming trains</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = '';
+
+    Object.entries(data.directions).forEach(([direction, trains]) => {
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <td colspan="2" class="direction-header">
+                Direction: ${direction}
+            </td>
+        `;
+        tbody.appendChild(headerRow);
+
+        trains.forEach(train => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="departure-time">${train.departure_time}</td>
+                <td class="countdown">${train.countdown}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        const spacerRow = document.createElement('tr');
+        spacerRow.innerHTML = '<td colspan="2" class="direction-spacer"></td>';
+        tbody.appendChild(spacerRow);
+    });
+}
+
+async function createTimetableSection(stopId) {
+    const section = document.createElement('div');
+    section.className = 'timetable-section';
+    section.id = `timetable-${stopId}`;
+
+    const table = document.createElement('table');
+    table.className = 'w-full';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Scheduled</th>
+                <th>Wait Time</th>
+            </tr>
+        </thead>
+        <tbody id="timetable-body-${stopId}">
+            <tr><td colspan="2" class="text-center">Loading...</td></tr>
+        </tbody>
+    `;
+    section.appendChild(table);
+    return section;
 }
 
 function clearAllIntervals() {
     refreshIntervals.forEach((intervalId) => clearInterval(intervalId));
     refreshIntervals.clear();
+    countdownIntervals.forEach((intervalId) => clearInterval(intervalId));
+    countdownIntervals.clear();
 }
 
 function selectStation(stationName, stopIds) {
@@ -217,13 +199,11 @@ window.addEventListener('DOMContentLoaded', () => {
     const stopId = urlParams.get('stop_id');
     
     if (stationName && stopId) {
-        // Wait for stations to be fetched and populated
         const checkDropdown = setInterval(() => {
             const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
             if (dropdownItems.length > 0) {
                 clearInterval(checkDropdown);
                 
-                // Find the matching station in the dropdown
                 const matchingItem = Array.from(dropdownItems)
                     .find(item => item.textContent === decodeURIComponent(stationName));
                 

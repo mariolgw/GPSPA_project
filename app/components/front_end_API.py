@@ -28,12 +28,7 @@ def db_connection():
 def get_station_info():
     """
     Retrieve station information from the database.
-
-    Query Parameters:
-        stop_id (str): The ID of the stop to retrieve information for.
-
-    Returns:
-        JSON response containing station information or an error message.
+    Parameters: stop_id
     """
     stop_id = request.args.get('stop_id')
     if not stop_id:
@@ -41,9 +36,10 @@ def get_station_info():
 
     conn = db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    # SQL query to retrieve station information
+    
+    # Modified query to only return routes that have scheduled trains
     query = sql.SQL("""
-        SELECT 
+        SELECT DISTINCT
             s.stop_id,
             s.stop_name,
             s.stop_lat,
@@ -52,12 +48,19 @@ def get_station_info():
             si.route_long_name,
             si.route_color
         FROM stops s
-        LEFT JOIN station_info si ON s.stop_id = si.stop_id
+        JOIN station_info si ON s.stop_id = si.stop_id
         WHERE s.stop_id = %s
+        AND EXISTS (
+            SELECT 1 
+            FROM departure_times dt 
+            WHERE dt.stop_id = s.stop_id 
+            AND dt.stop_id = si.stop_id
+            AND dt.departure_time > CURRENT_TIME
+        )
     """)
     
     cur.execute(query, (stop_id,))
-    station = cur.fetchone()
+    station = cur.fetchall()
     
     cur.close()
     conn.close()
