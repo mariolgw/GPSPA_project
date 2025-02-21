@@ -7,6 +7,7 @@ import json
 import schedule
 
 # Add the parent directory of ETL to the Python path
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 print("Python path:", sys.path)
 
@@ -25,7 +26,6 @@ def main():
     processed_data_file = process_data('data/stop_times.txt')  # Adjust the path as needed
     
     # Step 3: Convert the time
-
     input_file = processed_data_file
     output_file = 'ETL/data/stop_times_output.txt'
     process_times(input_file, output_file)
@@ -33,7 +33,7 @@ def main():
     # Step 4: Insert into the database
     db_main()
 
-    conn = psycopg2.connect(**DB_PARAMS) #declaring vaiable to connect to the database
+    conn = psycopg2.connect(**DB_PARAMS) #declaring vaiables to connect to the database
     cursor = conn.cursor()
 
    

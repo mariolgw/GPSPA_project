@@ -1,6 +1,6 @@
 # GPSPA_project 
 Git repository for GPSPA group project
-Group members: Lourenço, Mário, Samuel
+Group members: Lourenço Trindade Tavares de Oliveira Alexandre, Mário, Samuel
 
 Introduction
     Public transportation efficiency is a key factor in urban mobility, and real-time access to metro schedules significantly improves commuter experience. We have identified the problem that currnetly exists in the lisbon metro grid, as the only alternative to the information present in each stop is the website that only provides the frequency of trains during the hours of the day. In order to adress this issue and facilitate the metro user experience, this project aims to develop a system that allows users to select a metro stop in Lisbon and check the arrival times of the next three trains.
