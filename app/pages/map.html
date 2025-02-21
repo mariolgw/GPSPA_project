@@ -56,7 +56,7 @@
                 maxZoom: 19,
             }).addTo(map);
 
-            fetch('path/to/your/geojson/file.geojson')
+            fetch('../components/metro_lines.json')
                 .then(response => response.json())
                 .then(geojson => {
                     L.geoJSON(geojson, {
