@@ -12,6 +12,14 @@ const timetableContainer = document.getElementById('timetable-container');
 const refreshIntervals = new Map();
 const countdownIntervals = new Map();
 
+// Route color mapping
+const ROUTE_COLORS = {
+    'AMARELA': '#ffcc00',
+    'VERDE': '#00cc99',
+    'VERMELHA': '#ff3366',
+    'AZUL': '#6699cc'
+};
+
 async function fetchStations() {
     const response = await fetch(`${API_BASE_URL}/station_names`);
     if (!response.ok) {
@@ -114,6 +122,25 @@ async function showTimetables(stationName, stopIds) {
 
     stationHeader.appendChild(badgeContainer);
 }
+
+async function createTimetableSection(stopId) {
+    const section = document.createElement('div');
+    section.className = 'timetable-section';
+    section.id = `timetable-${stopId}`;
+
+    const table = document.createElement('table');
+    table.className = 'w-full';
+    
+    // Remove initial headers - they'll be added per direction
+    table.innerHTML = `
+        <tbody id="timetable-body-${stopId}">
+            <tr><td colspan="2" class="text-center">Loading...</td></tr>
+        </tbody>
+    `;
+    section.appendChild(table);
+    return section;
+}
+
 async function updateTimetable(stopId) {
     const tbody = document.getElementById(`timetable-body-${stopId}`);
     const response = await fetch(`${API_BASE_URL}/next_trains?stop_id=${stopId}`);
@@ -131,13 +158,26 @@ async function updateTimetable(stopId) {
     tbody.innerHTML = '';
 
     Object.entries(data.directions).forEach(([direction, trains]) => {
+        // Get route info for the direction
+        const routeInfo = getRouteInfo(direction);
+        
+        // Direction header with route color
         const headerRow = document.createElement('tr');
         headerRow.innerHTML = `
-            <td colspan="2" class="direction-header">
+            <td colspan="2" class="direction-header" style="background-color: ${routeInfo.color}">
                 Direction: ${direction}
             </td>
         `;
         tbody.appendChild(headerRow);
+
+        // Column headers under direction
+        const columnHeaders = document.createElement('tr');
+        columnHeaders.className = 'column-headers';
+        columnHeaders.innerHTML = `
+            <th>Scheduled</th>
+            <th>Wait Time</th>
+        `;
+        tbody.appendChild(columnHeaders);
 
         trains.forEach(train => {
             const row = document.createElement('tr');
@@ -154,26 +194,20 @@ async function updateTimetable(stopId) {
     });
 }
 
-async function createTimetableSection(stopId) {
-    const section = document.createElement('div');
-    section.className = 'timetable-section';
-    section.id = `timetable-${stopId}`;
-
-    const table = document.createElement('table');
-    table.className = 'w-full';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Scheduled</th>
-                <th>Wait Time</th>
-            </tr>
-        </thead>
-        <tbody id="timetable-body-${stopId}">
-            <tr><td colspan="2" class="text-center">Loading...</td></tr>
-        </tbody>
-    `;
-    section.appendChild(table);
-    return section;
+function getRouteInfo(direction) {
+    // Map direction names to their route colors
+    const routeMapping = {
+        'Odivelas': { color: ROUTE_COLORS.AMARELA },
+        'Rato': { color: ROUTE_COLORS.AMARELA },
+        'Telheiras': { color: ROUTE_COLORS.VERDE },
+        'Cais do Sodré': { color: ROUTE_COLORS.VERDE },
+        'Aeroporto': { color: ROUTE_COLORS.VERMELHA },
+        'São Sebastião': { color: ROUTE_COLORS.VERMELHA },
+        'Reboleira': { color: ROUTE_COLORS.AZUL },
+        'Santa Apolónia': { color: ROUTE_COLORS.AZUL }
+    };
+    
+    return routeMapping[direction] || { color: '#6B7280' };
 }
 
 function clearAllIntervals() {
