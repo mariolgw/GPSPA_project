@@ -20,6 +20,13 @@ const ROUTE_COLORS = {
     'AZUL': '#6699cc'
 };
 
+/**
+ * Fetches the list of all available stations from the API.
+ * This is called when the page loads to populate the station dropdown.
+ * @async
+ * @throws {Error} If the API request fails
+ * @returns {Promise<void>}
+ */
 async function fetchStations() {
     const response = await fetch(`${API_BASE_URL}/station_names`);
     if (!response.ok) {
@@ -29,6 +36,11 @@ async function fetchStations() {
     populateDropdown(stations);
 }
 
+/**
+ * Populates the dropdown menu with station names.
+ * Groups stations by name and associates each with its stop IDs.
+ * @param {Array<Object>} stations - Array of station objects containing stop_name and stop_id
+ */
 function populateDropdown(stations) {
     dropdownMenu.innerHTML = '';
     const stationMap = new Map();
@@ -50,6 +62,10 @@ function populateDropdown(stations) {
     });
 }
 
+/**
+ * Filters the station list based on user input.
+ * Called whenever the user types in the search box.
+ */
 function filterStations() {
     const input = stationInput.value.toLowerCase();
     const items = dropdownMenu.querySelectorAll('.dropdown-item');
@@ -62,10 +78,21 @@ function filterStations() {
     });
 }
 
+/**
+ * Toggles the visibility of the dropdown menu.
+ * Called when the user clicks the search input.
+ */
 function toggleDropdown() {
     dropdownMenu.classList.toggle('active');
 }
 
+/**
+ * Displays the timetables for a selected station.
+ * Creates route badges and timetable sections for each direction.
+ * @async
+ * @param {string} stationName - The name of the selected station
+ * @param {Array<string>} stopIds - Array of stop IDs associated with the station
+ */
 async function showTimetables(stationName, stopIds) {
     timetableContainer.style.display = 'block';
     timetableContainer.innerHTML = '';
@@ -123,6 +150,12 @@ async function showTimetables(stationName, stopIds) {
     stationHeader.appendChild(badgeContainer);
 }
 
+/**
+ * Creates a new timetable section for a specific stop ID.
+ * @async
+ * @param {string} stopId - The ID of the stop
+ * @returns {Promise<HTMLElement>} The created timetable section element
+ */
 async function createTimetableSection(stopId) {
     const section = document.createElement('div');
     section.className = 'timetable-section';
@@ -131,7 +164,6 @@ async function createTimetableSection(stopId) {
     const table = document.createElement('table');
     table.className = 'w-full';
     
-    // Remove initial headers - they'll be added per direction
     table.innerHTML = `
         <tbody id="timetable-body-${stopId}">
             <tr><td colspan="2" class="text-center">Loading...</td></tr>
@@ -141,6 +173,12 @@ async function createTimetableSection(stopId) {
     return section;
 }
 
+/**
+ * Updates the timetable display for a specific stop ID.
+ * Fetches latest train times and updates the display with countdown timers.
+ * @async
+ * @param {string} stopId - The ID of the stop to update
+ */
 async function updateTimetable(stopId) {
     const tbody = document.getElementById(`timetable-body-${stopId}`);
     const response = await fetch(`${API_BASE_URL}/next_trains?stop_id=${stopId}`);
@@ -181,9 +219,26 @@ async function updateTimetable(stopId) {
 
         trains.forEach(train => {
             const row = document.createElement('tr');
+            
+            // Calculate seconds until departure
+            const now = new Date();
+            const [hours, minutes, seconds] = train.departure_time.split(':').map(Number);
+            const departureTime = new Date(now);
+            departureTime.setHours(hours, minutes, seconds);
+            
+            // Handle cases where the departure is tomorrow
+            if (departureTime < now) {
+                departureTime.setDate(departureTime.getDate() + 1);
+            }
+            
+            const timeDiff = Math.max(0, Math.floor((departureTime - now) / 1000));
+            const waitMinutes = Math.floor(timeDiff / 60);
+            const waitSeconds = timeDiff % 60;
+            const formattedWaitTime = `${waitMinutes}m${waitSeconds.toString().padStart(2, '0')}s`;
+            
             row.innerHTML = `
                 <td class="departure-time">${train.departure_time}</td>
-                <td class="countdown">${train.countdown}</td>
+                <td class="countdown">${formattedWaitTime}</td>
             `;
             tbody.appendChild(row);
         });
@@ -194,6 +249,11 @@ async function updateTimetable(stopId) {
     });
 }
 
+/**
+ * Returns the color information for a given direction based on route mapping.
+ * @param {string} direction - The direction/terminus of the route
+ * @returns {Object} An object containing the color for the route
+ */
 function getRouteInfo(direction) {
     // Map direction names to their route colors
     const routeMapping = {
@@ -210,6 +270,46 @@ function getRouteInfo(direction) {
     return routeMapping[direction] || { color: '#6B7280' };
 }
 
+/**
+ * Updates all countdown timers for a specific stop ID.
+ * Called every second to keep wait times accurate.
+ * @param {string} stopId - The ID of the stop to update countdowns for
+ */
+function updateCountdown(stopId) {
+    const tbody = document.getElementById(`timetable-body-${stopId}`);
+    if (!tbody) return;
+    
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        const departureCell = row.querySelector('.departure-time');
+        const countdownCell = row.querySelector('.countdown');
+        
+        if (!departureCell || !countdownCell) return;
+        
+        const departureTime = departureCell.textContent;
+        if (!departureTime) return;
+        
+        const now = new Date();
+        const [hours, minutes, seconds] = departureTime.split(':').map(Number);
+        const departure = new Date(now);
+        departure.setHours(hours, minutes, seconds);
+        
+        // Handle cases where the departure is tomorrow
+        if (departure < now) {
+            departure.setDate(departure.getDate() + 1);
+        }
+        
+        const timeDiff = Math.max(0, Math.floor((departure - now) / 1000));
+        const waitMinutes = Math.floor(timeDiff / 60);
+        const waitSeconds = timeDiff % 60;
+        countdownCell.textContent = `${waitMinutes}m${waitSeconds.toString().padStart(2, '0')}s`;
+    });
+}
+
+/**
+ * Clears all active refresh and countdown intervals.
+ * Called when switching stations or unloading the page.
+ */
 function clearAllIntervals() {
     refreshIntervals.forEach((intervalId) => clearInterval(intervalId));
     refreshIntervals.clear();
@@ -217,6 +317,12 @@ function clearAllIntervals() {
     countdownIntervals.clear();
 }
 
+/**
+ * Handles station selection from the dropdown.
+ * Updates the input field and displays the timetables.
+ * @param {string} stationName - The name of the selected station
+ * @param {Array<string>} stopIds - Array of stop IDs associated with the station
+ */
 function selectStation(stationName, stopIds) {
     stationInput.value = stationName;
     dropdownMenu.classList.remove('active');
