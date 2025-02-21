@@ -35,6 +35,18 @@
             width: 100%;
             height: calc(100% - 60px); /* Adjust height to account for header */
         }
+        .station-popup {
+            padding: 5px;
+        }
+        .station-popup h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .station-popup p {
+            margin: 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -56,6 +68,7 @@
                 maxZoom: 19,
             }).addTo(map);
 
+            // Add metro lines
             fetch('../components/metro_lines.json')
                 .then(response => response.json())
                 .then(geojson => {
@@ -77,18 +90,46 @@
                     alert("Failed to load metro lines data. Check the console for details.");
                 });
 
-            // Add stations
-            const dummyStations = [
-                { name: "Station A", lat: 38.7169, lon: -9.1399 },
-                { name: "Station B", lat: 38.7269, lon: -9.1499 },
-                { name: "Station C", lat: 38.7369, lon: -9.1299 }
-            ];
-
-            dummyStations.forEach(station => {
-                L.marker([station.lat, station.lon])
-                    .addTo(map)
-                    .bindPopup(`<b>${station.name}</b>`);
-            });
+            // Fetch and add stations
+            fetch('http://127.0.0.1:5000/station_names')
+                .then(response => response.json())
+                .then(stations => {
+                    // Create a Set to track unique station names we've already processed
+                    const processedStations = new Set();
+                    
+                    // Process each station
+                    stations.forEach(station => {
+                        // Skip if we've already processed this station name
+                        if (processedStations.has(station.stop_name)) {
+                            return;
+                        }
+                        
+                        // Mark this station name as processed
+                        processedStations.add(station.stop_name);
+                        
+                        // Fetch detailed info for this station
+                        fetch(`http://127.0.0.1:5000/station_info?stop_id=${station.stop_id}`)
+                            .then(response => response.json())
+                            .then(stationInfo => {
+                                if (stationInfo.stop_lat && stationInfo.stop_lon) {
+                                    // Create marker with popup
+                                    L.marker([stationInfo.stop_lat, stationInfo.stop_lon])
+                                        .addTo(map)
+                                        .bindPopup(`
+                                            <div class="station-popup">
+                                                <h3>${stationInfo.stop_name}</h3>
+                                                <p>Line: ${stationInfo.route_long_name || 'Multiple Lines'}</p>
+                                            </div>
+                                        `);
+                                }
+                            })
+                            .catch(error => console.error('Error fetching station info:', error));
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading stations:", error);
+                    alert("Failed to load station data. Check the console for details.");
+                });
         });
     </script>
 </body>
