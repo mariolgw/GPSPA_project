@@ -9,7 +9,12 @@ app = Flask(__name__)
 CORS(app)
 
 def db_connection():
-    """Establish a connection to the PostgreSQL database."""
+    """
+    Establish a connection to the PostgreSQL database.
+
+    Returns:
+        conn (psycopg2.extensions.connection): Database connection object.
+    """
     conn = psycopg2.connect(
         dbname="metro",
         user="postgres",
@@ -21,14 +26,22 @@ def db_connection():
 
 @app.route('/station_info', methods=['GET'])
 def get_station_info():
-    """Retrieve station information from the database."""
+    """
+    Retrieve station information from the database.
+
+    Query Parameters:
+        stop_id (str): The ID of the stop to retrieve information for.
+
+    Returns:
+        JSON response containing station information or an error message.
+    """
     stop_id = request.args.get('stop_id')
     if not stop_id:
         return jsonify({"error": "stop_id parameter is required"}), 400
 
     conn = db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    
+    # SQL query to retrieve station information
     query = sql.SQL("""
         SELECT 
             s.stop_id,
@@ -55,13 +68,21 @@ def get_station_info():
 
 @app.route('/next_trains', methods=['GET'])
 def next_trains():
-    """Get next 3 trains after current time, accounting for weekday/weekend schedules."""
+    """
+    Get next 3 trains after current time, accounting for weekday/weekend schedules.
+
+    Query Parameters:
+        stop_id (str): The ID of the stop to retrieve train information for.
+
+    Returns:
+        JSON response containing the next 3 trains or an error message.
+    """
     stop_id = request.args.get('stop_id')
     if not stop_id:
         return jsonify({"error": "stop_id parameter is required"}), 400
-
-    current_time = datetime.now().time()
     
+    # Get current time 
+    current_time = datetime.now().time()
     # Get current weekday (0-6, where 0 is Monday)
     current_weekday = datetime.now().weekday()
     # 1 for weekdays (0-4), 0 for weekends (5-6)
@@ -70,6 +91,7 @@ def next_trains():
     conn = db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
+    # SQL query to retrieve next 3 trains
     query = sql.SQL("""
         SELECT 
             dt.stop_id, 
@@ -106,10 +128,16 @@ def next_trains():
 
 @app.route('/station_names', methods=['GET'])
 def get_station_names():
-    """Retrieve all unique station names and IDs for dropdown menu."""
+    """
+    Retrieve all unique station names and IDs for dropdown menu.
+
+    Returns:
+        JSON response containing a list of station names and IDs.
+    """
     conn = db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
+    # SQL query to retrieve unique station names and IDs
     query = sql.SQL("""
         SELECT DISTINCT stop_id, stop_name
         FROM stops

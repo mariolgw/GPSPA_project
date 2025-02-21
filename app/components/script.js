@@ -11,6 +11,9 @@ const timetableContainer = document.getElementById('timetable-container');
 // Store refresh intervals for cleanup
 const refreshIntervals = new Map();
 
+/**
+ * Fetch the list of stations from the API and populate the dropdown menu.
+ */
 async function fetchStations() {
     try {
         const response = await fetch(`${API_BASE_URL}/station_names`);
@@ -25,6 +28,10 @@ async function fetchStations() {
     }
 }
 
+/**
+ * Populate the dropdown menu with the list of stations.
+ * @param {Array} stations - List of station objects.
+ */
 function populateDropdown(stations) {
     dropdownMenu.innerHTML = '';
     // Group stations by name to handle multiple stop_ids
@@ -48,6 +55,9 @@ function populateDropdown(stations) {
     });
 }
 
+/**
+ * Filter the dropdown menu based on the input value.
+ */
 function filterStations() {
     const input = stationInput.value.toLowerCase();
     const items = dropdownMenu.querySelectorAll('.dropdown-item');
@@ -60,10 +70,18 @@ function filterStations() {
     });
 }
 
+/**
+ * Toggle the visibility of the dropdown menu.
+ */
 function toggleDropdown() {
     dropdownMenu.classList.toggle('active');
 }
 
+/**
+ * Fetch station information from the API.
+ * @param {string} stopId - The ID of the stop to retrieve information for.
+ * @returns {Object} Station information.
+ */
 async function getStationInfo(stopId) {
     const response = await fetch(`${API_BASE_URL}/station_info?stop_id=${stopId}`);
     if (!response.ok) {
@@ -72,6 +90,12 @@ async function getStationInfo(stopId) {
     return await response.json();
 }
 
+/**
+ * Create a timetable section for a specific stop.
+ * @param {string} stopId - The ID of the stop.
+ * @param {Object} stationInfo - Information about the station.
+ * @returns {HTMLElement} The timetable section element.
+ */
 async function createTimetableSection(stopId, stationInfo) {
     const section = document.createElement('div');
     section.className = 'timetable-section';
@@ -96,6 +120,10 @@ async function createTimetableSection(stopId, stationInfo) {
     return section;
 }
 
+/**
+ * Update the timetable for a specific stop.
+ * @param {string} stopId - The ID of the stop.
+ */
 async function updateTimetable(stopId) {
     const tbody = document.getElementById(`timetable-body-${stopId}`);
     try {
@@ -122,6 +150,11 @@ async function updateTimetable(stopId) {
     }
 }
 
+/**
+ * Display timetables for the selected station and stop IDs.
+ * @param {string} stationName - The name of the station.
+ * @param {Array} stopIds - List of stop IDs for the station.
+ */
 async function showTimetables(stationName, stopIds) {
     timetableContainer.style.display = 'block';
     timetableContainer.innerHTML = '';
@@ -171,11 +204,20 @@ async function showTimetables(stationName, stopIds) {
     stationHeader.appendChild(badgeContainer);
 }
 
+/**
+ * Clear all refresh intervals.
+ */
+func
 function clearAllIntervals() {
     refreshIntervals.forEach((intervalId) => clearInterval(intervalId));
     refreshIntervals.clear();
 }
 
+/**
+ * Handle station selection from the dropdown menu.
+ * @param {string} stationName - The name of the selected station.
+ * @param {Array} stopIds - List of stop IDs for the selected station.
+ */
 function selectStation(stationName, stopIds) {
     stationInput.value = stationName;
     dropdownMenu.classList.remove('active');

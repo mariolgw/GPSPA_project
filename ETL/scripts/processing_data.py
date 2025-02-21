@@ -45,6 +45,8 @@ def process_data(input_file):
             # Modify the trip_id to keep only the string between the underscores
             trip_id = fields[0].split('_')[1] if len(fields[0].split('_')) > 1 else fields[0]
             fields[0] = trip_id
+            
+            #transforms the values of the service_id column to 1 if it is 'WKDY' and 0 if it is 'SASUHO'
 
             if fields[0] == 'WKDY':
                 fields[0] = '1'
@@ -56,5 +58,3 @@ def process_data(input_file):
 
     return output_file
 
-# Call the process_data function with the path to the input file
- # Adjust the path as needed
