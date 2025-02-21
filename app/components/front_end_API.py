@@ -69,61 +69,84 @@ def get_station_info():
 @app.route('/next_trains', methods=['GET'])
 def next_trains():
     """
-    Get next 3 trains after current time, accounting for weekday/weekend schedules.
-
-    Query Parameters:
-        stop_id (str): The ID of the stop to retrieve train information for.
-
-    Returns:
-        JSON response containing the next 3 trains or an error message.
+    Get next 3 trains per direction after current time, accounting for weekday/weekend schedules.
     """
     stop_id = request.args.get('stop_id')
     if not stop_id:
         return jsonify({"error": "stop_id parameter is required"}), 400
     
-    # Get current time 
     current_time = datetime.now().time()
-    # Get current weekday (0-6, where 0 is Monday)
     current_weekday = datetime.now().weekday()
-    # 1 for weekdays (0-4), 0 for weekends (5-6)
     is_weekday = 1 if current_weekday < 5 else 0
     
     conn = db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # SQL query to retrieve next 3 trains
+    # Modified query to get next 3 trains per direction
     query = sql.SQL("""
-        SELECT 
-            dt.stop_id, 
-            dt.stop_headsign, 
-            dt.departure_time,
-            si.route_short_name,
-            si.route_long_name
-        FROM departure_times dt
-        LEFT JOIN station_info si ON dt.stop_id = si.stop_id
-        WHERE 
-            dt.stop_id = %s 
-            AND dt.departure_time > %s
-            AND dt.weekday = %s::text
-        ORDER BY dt.departure_time 
-        LIMIT 3
+        WITH DirectionalTrains AS (
+            SELECT 
+                dt.stop_id, 
+                dt.stop_headsign, 
+                dt.departure_time,
+                si.route_short_name,
+                si.route_long_name,
+                ROW_NUMBER() OVER (
+                    PARTITION BY dt.stop_headsign 
+                    ORDER BY dt.departure_time
+                ) as rn
+            FROM departure_times dt
+            LEFT JOIN station_info si ON dt.stop_id = si.stop_id
+            WHERE 
+                dt.stop_id = %s 
+                AND dt.departure_time > %s
+                AND dt.weekday = %s::text
+                AND si.route_short_name IS NOT NULL  -- Filter out empty routes
+        )
+        SELECT *
+        FROM DirectionalTrains
+        WHERE rn <= 3
+        ORDER BY stop_headsign, departure_time
     """)
     
     cur.execute(query, (stop_id, current_time, is_weekday))
     trains = cur.fetchall()
 
-    # Convert trains from RealDictRow to dict and format times
-    formatted_trains = []
+    # Group trains by direction
+    directions = {}
     for train in trains:
+        direction = train['stop_headsign']
+        if direction not in directions:
+            directions[direction] = []
+            
         train_dict = dict(train)
         train_dict['departure_time'] = train_dict['departure_time'].strftime('%H:%M:%S')
-        formatted_trains.append(train_dict)
+        # Calculate countdown
+        departure_time = datetime.strptime(train_dict['departure_time'], '%H:%M:%S').time()
+        current_datetime = datetime.now()
+        departure_datetime = datetime.combine(current_datetime.date(), departure_time)
+        
+        # Handle cases where train is after midnight
+        if departure_time < current_time:
+            departure_datetime += timedelta(days=1)
+            
+        time_diff = departure_datetime - current_datetime
+        minutes = int(time_diff.total_seconds() / 60)
+        hours = minutes // 60
+        remaining_minutes = minutes % 60
+        
+        if hours > 0:
+            train_dict['countdown'] = f"{hours}h {remaining_minutes}m"
+        else:
+            train_dict['countdown'] = f"{remaining_minutes}m"
+            
+        directions[direction].append(train_dict)
 
     cur.close()
     conn.close()
 
-    if formatted_trains:
-        return jsonify({"trains": formatted_trains})
+    if directions:
+        return jsonify({"directions": directions})
     return jsonify({"error": "No upcoming trains found"}), 404
 
 @app.route('/station_names', methods=['GET'])

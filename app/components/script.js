@@ -72,6 +72,56 @@ async function getStationInfo(stopId) {
     return await response.json();
 }
 
+async function updateTimetable(stopId) {
+    const tbody = document.getElementById(`timetable-body-${stopId}`);
+    try {
+        const response = await fetch(`${API_BASE_URL}/next_trains?stop_id=${stopId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch timetable');
+        }
+        const data = await response.json();
+
+        if (data.error) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">No upcoming trains</td></tr>';
+            return;
+        }
+
+        // Clear existing content
+        tbody.innerHTML = '';
+
+        // Create a table section for each direction
+        Object.entries(data.directions).forEach(([direction, trains]) => {
+            // Add direction header
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `
+                <td colspan="3" class="direction-header">
+                    Direction: ${direction}
+                </td>
+            `;
+            tbody.appendChild(headerRow);
+
+            // Add trains for this direction
+            trains.forEach(train => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="departure-time">${train.departure_time}</td>
+                    <td class="countdown">${train.countdown}</td>
+                    <td class="direction">${train.stop_headsign}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add a spacer row between directions
+            const spacerRow = document.createElement('tr');
+            spacerRow.innerHTML = '<td colspan="3" class="direction-spacer"></td>';
+            tbody.appendChild(spacerRow);
+        });
+    } catch (error) {
+        console.error(`Error updating timetable for stop ${stopId}:`, error);
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">Failed to load timetable</td></tr>';
+    }
+}
+
 async function createTimetableSection(stopId, stationInfo) {
     const section = document.createElement('div');
     section.className = 'timetable-section';
@@ -84,42 +134,17 @@ async function createTimetableSection(stopId, stationInfo) {
         <thead>
             <tr>
                 <th>Time</th>
+                <th>Countdown</th>
                 <th>Direction</th>
             </tr>
         </thead>
         <tbody id="timetable-body-${stopId}">
-            <tr><td colspan="2" class="text-center">Loading...</td></tr>
+            <tr><td colspan="3" class="text-center">Loading...</td></tr>
         </tbody>
     `;
     section.appendChild(table);
 
     return section;
-}
-
-async function updateTimetable(stopId) {
-    const tbody = document.getElementById(`timetable-body-${stopId}`);
-    try {
-        const response = await fetch(`${API_BASE_URL}/next_trains?stop_id=${stopId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch timetable');
-        }
-        const data = await response.json();
-
-        if (data.error) {
-            tbody.innerHTML = '<tr><td colspan="2" class="text-center">No upcoming trains</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = data.trains.map(train => `
-            <tr>
-                <td class="departure-time">${train.departure_time}</td>
-                <td class="direction">${train.stop_headsign}</td>
-            </tr>
-        `).join('');
-    } catch (error) {
-        console.error(`Error updating timetable for stop ${stopId}:`, error);
-        tbody.innerHTML = '<tr><td colspan="2" class="text-center">Failed to load timetable</td></tr>';
-    }
 }
 
 async function showTimetables(stationName, stopIds) {

@@ -144,7 +144,7 @@ body {
 }
 
 .timetable th {
-    padding: 16px 24px;        
+    padding: 16px 24px;
     background-color: #f8f9fa;
     font-weight: bold;
     text-transform: uppercase;
@@ -155,7 +155,7 @@ body {
 }
 
 .timetable td {
-    padding: 16px 24px;        
+    padding: 12px 24px;
     border-bottom: 1px solid #eee;
     text-align: left;
 }
@@ -183,4 +183,24 @@ body {
     width: 100%;
     height: 750px;
     margin: 20px 0;
+}
+
+/* fixes for direction grouping */
+.direction-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    padding: 12px 24px;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+}
+
+.direction-spacer {
+    height: 20px;
+    background-color: #f8f9fa;
+}
+
+.countdown {
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
 }
