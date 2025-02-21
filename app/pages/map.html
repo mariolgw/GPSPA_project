@@ -47,6 +47,19 @@
             margin: 0;
             font-size: 14px;
         }
+        .station-popup .timetable-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .station-popup .timetable-link:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -119,6 +132,11 @@
                                             <div class="station-popup">
                                                 <h3>${stationInfo.stop_name}</h3>
                                                 <p>Line: ${stationInfo.route_long_name || 'Multiple Lines'}</p>
+                                                <button 
+                                                    onclick="window.location.href='index.html?station=${encodeURIComponent(stationInfo.stop_name)}&stop_id=${station.stop_id}'" 
+                                                    class="timetable-link">
+                                                    View Timetable
+                                                </button>
                                             </div>
                                         `);
                                 }

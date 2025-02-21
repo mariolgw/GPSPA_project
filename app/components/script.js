@@ -185,5 +185,31 @@ function selectStation(stationName, stopIds) {
 // Initialize the dropdown on page load
 fetchStations();
 
+// Handle URL parameters when page loads
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stationName = urlParams.get('station');
+    const stopId = urlParams.get('stop_id');
+    
+    if (stationName && stopId) {
+        // Wait for stations to be fetched and populated
+        const checkDropdown = setInterval(() => {
+            const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
+            if (dropdownItems.length > 0) {
+                clearInterval(checkDropdown);
+                
+                // Find the matching station in the dropdown
+                const matchingItem = Array.from(dropdownItems)
+                    .find(item => item.textContent === decodeURIComponent(stationName));
+                
+                if (matchingItem) {
+                    const stopIds = JSON.parse(matchingItem.dataset.stopIds);
+                    selectStation(decodeURIComponent(stationName), stopIds);
+                }
+            }
+        }, 100);
+    }
+});
+
 // Clean up intervals when page is unloaded
 window.addEventListener('unload', clearAllIntervals);
