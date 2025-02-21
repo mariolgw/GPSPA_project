@@ -6,3 +6,5 @@ psycopg2
 json
 schedule
 requests
+flask-cors
+datetime

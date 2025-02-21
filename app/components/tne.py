@@ -3,10 +3,8 @@ import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
 def db_connection():
     """Establish a connection to the PostgreSQL database."""
@@ -19,8 +17,8 @@ def db_connection():
     )
     return conn
 
-@app.route('/station_info', methods=['GET'])
-def get_station_info():
+@app.route('/st_info', methods=['GET'])
+def gsta_info():
     """Retrieve station information from the database."""
     stop_id = request.args.get('stop_id')
     if not stop_id:
@@ -53,8 +51,8 @@ def get_station_info():
         return jsonify(station)
     return jsonify({"error": "Station not found"}), 404
 
-@app.route('/next_trains', methods=['GET'])
-def next_trains():
+@app.route('/tne', methods=['GET'])
+def tne():
     """Get next 3 trains after current time, accounting for weekday/weekend schedules."""
     stop_id = request.args.get('stop_id')
     if not stop_id:
@@ -103,27 +101,6 @@ def next_trains():
     if formatted_trains:
         return jsonify({"trains": formatted_trains})
     return jsonify({"error": "No upcoming trains found"}), 404
-
-@app.route('/station_names', methods=['GET'])
-def get_station_names():
-    """Retrieve all unique station names and IDs for dropdown menu."""
-    conn = db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    
-    query = sql.SQL("""
-        SELECT DISTINCT stop_id, stop_name
-        FROM stops
-        ORDER BY stop_name
-    """)
-    
-    cur.execute(query)
-    stations = cur.fetchall()
-    
-    cur.close()
-    conn.close()
-    
-    # Return the raw data directly
-    return jsonify(stations)
 
 if __name__ == '__main__':
     app.run(debug=True)

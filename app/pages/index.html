@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro Transit Map</title>
+    <title>Metro Transit Timetables</title>
     <link rel="stylesheet" href="../styles/styles.css">
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <button 
+            class="map-button"
+            onclick="window.location.href='map.html'"
+        >
+            View Map
+        </button>
+    </nav>
+
     <!-- Header with search -->
     <div class="header">
         <input 
@@ -20,36 +30,13 @@
             <!-- Dropdown items will be populated here -->
         </div>
     </div>
-    <!-- the timetable structure here -->
+    
+    <!-- Timetables container -->
     <div id="timetable-container" style="display: none;">
-        <div class="timetable">
-            <h2 id="station-name"></h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Direction</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="timetable-body">
-                    <!-- Timetable rows will be populated here -->
-                </tbody>
-            </table>
-        </div>
+        <!-- Timetables will be dynamically populated here -->
     </div>
-    <div class="map-container">
-        <iframe 
-            width="100%" 
-            height="100%" 
-            frameborder="0" 
-            scrolling="no" 
-            marginheight="0" 
-            marginwidth="0" 
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-9.175491333007814%2C38.70065671643555%2C-9.106998443603516%2C38.74351108724133&amp;layer=transportmap&amp;relation=3319250"
-            style="border: 1px solid #ccc;">
-        </iframe>
-    </div>
-    <script  src="../components/script.js"></script>
+
+    <!-- Scripts -->
+    <script src="../components/script.js"></script>
 </body>
 </html>
