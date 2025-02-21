@@ -19,6 +19,16 @@ from scripts.dbconnection import insert_stops, insert_departure_times, insert_st
 
 def main():
     
+    """
+    Main function to execute the ETL process.
+
+    Steps:
+    1. Download and unzip the file.
+    2. Process the data.
+    3. Convert the time.
+    4. Insert data into the database.
+    """
+    
     # Step 1: Download and unzip the file
     download_and_unzip()
     
