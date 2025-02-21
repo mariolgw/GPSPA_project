@@ -7,28 +7,26 @@
     <link rel="stylesheet" href="../styles/styles.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav-bar">
+    <!-- Combined header with search and map button -->
+    <div class="header-container">
+        <div class="search-container">
+            <input 
+                type="text" 
+                class="station-select" 
+                placeholder="Search for a station..."
+                oninput="filterStations()"
+                onclick="toggleDropdown()"
+            >
+            <div class="dropdown-menu" id="dropdown-menu">
+                <!-- Dropdown items will be populated here -->
+            </div>
+        </div>
         <button 
             class="map-button"
             onclick="window.location.href='map.html'"
         >
             View Map
         </button>
-    </nav>
-
-    <!-- Header with search -->
-    <div class="header">
-        <input 
-            type="text" 
-            class="station-select" 
-            placeholder="Search for a station..."
-            oninput="filterStations()"
-            onclick="toggleDropdown()"
-        >
-        <div class="dropdown-menu" id="dropdown-menu">
-            <!-- Dropdown items will be populated here -->
-        </div>
     </div>
     
     <!-- Timetables container -->
@@ -36,7 +34,6 @@
         <!-- Timetables will be dynamically populated here -->
     </div>
 
-    <!-- Scripts -->
     <script src="../components/script.js"></script>
 </body>
 </html>

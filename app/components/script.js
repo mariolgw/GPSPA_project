@@ -74,33 +74,21 @@ async function getStationInfo(stopId) {
 
 async function createTimetableSection(stopId, stationInfo) {
     const section = document.createElement('div');
-    section.className = 'timetable-section mb-4';
+    section.className = 'timetable-section';
     section.id = `timetable-${stopId}`;
-
-    // Create header with route info and styling
-    const header = document.createElement('div');
-    header.className = 'timetable-header p-2';
-    header.style.backgroundColor = `#${stationInfo.route_color || '6B7280'}`;
-    header.style.color = '#ffffff';
-    header.innerHTML = `
-        <h3 class="text-lg font-bold">${stationInfo.route_long_name || 'Train Line'}</h3>
-        <p class="text-sm">${stationInfo.route_short_name || ''}</p>
-    `;
-    section.appendChild(header);
 
     // Create table
     const table = document.createElement('table');
-    table.className = 'w-full border-collapse';
+    table.className = 'w-full';
     table.innerHTML = `
         <thead>
             <tr>
-                <th class="p-2 border text-left">Time</th>
-                <th class="p-2 border text-left">Direction</th>
-                <th class="p-2 border text-left">Status</th>
+                <th>Time</th>
+                <th>Direction</th>
             </tr>
         </thead>
         <tbody id="timetable-body-${stopId}">
-            <tr><td colspan="3" class="p-2 text-center">Loading...</td></tr>
+            <tr><td colspan="2" class="text-center">Loading...</td></tr>
         </tbody>
     `;
     section.appendChild(table);
@@ -118,33 +106,55 @@ async function updateTimetable(stopId) {
         const data = await response.json();
 
         if (data.error) {
-            tbody.innerHTML = '<tr><td colspan="3" class="p-2 text-center">No upcoming trains</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center">No upcoming trains</td></tr>';
             return;
         }
 
         tbody.innerHTML = data.trains.map(train => `
             <tr>
-                <td class="p-2 border">${train.departure_time}</td>
-                <td class="p-2 border">${train.stop_headsign}</td>
-                <td class="p-2 border">Scheduled</td>
+                <td class="departure-time">${train.departure_time}</td>
+                <td class="direction">${train.stop_headsign}</td>
             </tr>
         `).join('');
     } catch (error) {
         console.error(`Error updating timetable for stop ${stopId}:`, error);
-        tbody.innerHTML = '<tr><td colspan="3" class="p-2 text-center">Failed to load timetable</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="2" class="text-center">Failed to load timetable</td></tr>';
     }
 }
 
 async function showTimetables(stationName, stopIds) {
-    // Clear existing timetables and intervals
     timetableContainer.style.display = 'block';
-    timetableContainer.innerHTML = `<h2 class="text-2xl font-bold mb-4">${stationName}</h2>`;
+    timetableContainer.innerHTML = '';
     clearAllIntervals();
+
+    // Create station header with route badges
+    const stationHeader = document.createElement('div');
+    stationHeader.className = 'station-header';
+    
+    // Create station name element
+    const stationNameEl = document.createElement('h2');
+    stationNameEl.className = 'station-name';
+    stationNameEl.textContent = stationName;
+    stationHeader.appendChild(stationNameEl);
+
+    // Container for route badges
+    const badgeContainer = document.createElement('div');
+    badgeContainer.className = 'route-badges';
+    
+    timetableContainer.appendChild(stationHeader);
 
     // Create and populate timetable for each stop_id
     for (const stopId of stopIds) {
         try {
             const stationInfo = await getStationInfo(stopId);
+            
+            // Create route badge
+            const badge = document.createElement('span');
+            badge.className = 'route-badge';
+            badge.style.backgroundColor = `#${stationInfo.route_color || '6B7280'}`;
+            badge.textContent = stationInfo.route_short_name || 'Train';
+            badgeContainer.appendChild(badge);
+            
             const timetableSection = await createTimetableSection(stopId, stationInfo);
             timetableContainer.appendChild(timetableSection);
             
@@ -156,6 +166,9 @@ async function showTimetables(stationName, stopIds) {
             console.error(`Error setting up timetable for stop ${stopId}:`, error);
         }
     }
+
+    // Add badges after collecting all routes
+    stationHeader.appendChild(badgeContainer);
 }
 
 function clearAllIntervals() {
