@@ -131,7 +131,7 @@ We faced several challenges during development. Creating effective database quer
 
 Our app offers advantages over the official Lisbon Metro website. While their site covers everything from art installations to construction plans, our solution focuses on the one thing most users want:  
 
-when's my next train coming?  
+When is my next train coming?  
 
 This focused approach makes our app simpler, more convenient, and faster to use, especially on mobile devices.
 
