@@ -56,6 +56,14 @@ This relational database design ensures structured data management, supports fas
 
 API
 
+Our API serves as the interface between the database set up by main.py and the front-end interface our team created. Our API ensures real-time access to the data stored in the database, providing live updates and accurate information as requested by the user. From schedule information, to station location data, it is all handled by the "front_end_API.py" file. Dynamic information facilitated by regular data retrieval using flask, supports communication between various systems, conecting our PostgreSQL database and the front-end javgascript through psycopg2. 
+
+There are three API endpoints our team built. /station_info returns detailed information about whatever station is queried. Information such as the station longitude, latitude, the station's stop id, short and long name of the station, and the route color among a few other information fields. The second API endpoint, /next_trains provides the next three trains arriving at the queried station based on the user's current time. This API also groups by direction to facilitate implementation into the front-end application. Both of tyhese API endpoints require the stop_id to provide the requested information.
+
+The initial API utilized, /station_names, does not require any parameters and is utilized to populate the dropdown menu from the landing page when the search field is selected. This API endpoint returns a list of stations to be selected from the dropdopwn by the user. 
+
+Error handling is employed to validate whether the required parameters are included in the query. When no /next_trains are found, a 404 or 400 status message is returned to assist the user in trouble shooting. All API responses are returned in JSON format to facilitate integration into the front-end web application. Our API serves as the backbone of our front-end interface to efficiently bridge the gap between our database and the user, providing timely and up to date metro schedule information to users. 
+
 How to run 
     
 Results & Discussion
