@@ -67,7 +67,7 @@ Error handling is employed to validate whether the required parameters are inclu
 ## How to run
 
 ### Before getting started:
--Have a recent version of Python installed
+-Have a recent version of Python installed  
 -PostgreSQL 14+ and PostGIS extenstion installed
 
 ### Installs
@@ -80,46 +80,46 @@ or
 conda install -c conda-forge --file requirements.txt
 
 ### Database setup
--Create a database named "metro" 
--Enable the PostGIS extension
--Run ETL/database/database.sql in PostgreSQL
+-Create a database named "metro"   
+-Enable the PostGIS extension  
+-Run ETL/database/database.sql in PostgreSQL  
 -**Important:** Configure the database connection sections in ETL/database/dbconnection.py and app/components/front_end_API.py for your PostgreSQL credentials if they differ fromn the default.
 
 ### ETL
--Run main.py
+-Run main.py  
 This will download the latest GTFS data from the Lisbon Metro, process and transform the data, and load the data into your PostgreSQL database.
 
 ### API 
--After ensuring accurate credentials run the flask API from /app/components/front_end_API.py
+-After ensuring accurate credentials run the flask API from /app/components/front_end_API.py  
 -API function verification can be achieved by accessing any if the following:
 
 http://localhost:5000/station_names
 
--For both of the following, * *STOP_ID* * must be replaced with a valid stop_id
-http://localhost:5000/station_info?stop_id=* *STOP_ID* *
-http://localhost:5000/next_trains?stop_id=* *STOP_ID* *
+-For both of the following, * *STOP_ID* * must be replaced with a valid stop_id  
+http://localhost:5000/station_info?stop_id= * *STOP_ID* *  
+http://localhost:5000/next_trains?stop_id= * *STOP_ID* *  
 
 ### Frontend Application 
--Open a location enabled browser, our team recommends Chrome, and navigate to http://127.0.0.1:5500/app/pages/index.html or whatever port is defined on your machine followed by /app/pages/index.html
--The landing/home page should appear like this:
+-Open a location enabled browser, our team recommends Chrome, and navigate to http://127.0.0.1:5500/app/pages/index.html or whatever port is defined on your machine followed by /app/pages/index.html  
+-The landing/home page should appear like this:  
 
 ![alt text](<homepage.png>)
 
--You can select the "Search for a station..." field to select a station from the dropdown or begin typing to search for a station 
--Selecting a station from the dropdown will show the next three trains in each direction for that station including the scheduled arrival time and the wait time until departure
--Example:
+-You can select the "Search for a station..." field to select a station from the dropdown or begin typing to search for a station  
+-Selecting a station from the dropdown will show the next three trains in each direction for that station including the scheduled arrival time and the wait time until departure  
+-Example:  
 
 ![alt text](<example_timetable.png>)
 
--You can select the "View Map" button to see each Metro Lisbon station displayed on a map
--Momentarily your location will appear and the map will automatically focus on your local area
--Example:
+-You can select the "View Map" button to see each Metro Lisbon station displayed on a map  
+-Momentarily your location will appear and the map will automatically focus on your local area  
+-Example:  
 
 ![alt text](<map.png>)
 
--The "+" and "-" buttons can be used to adjust the zoom applied to the map, and the pin button can be used to focus back on your current location if you pan away.
--Any station pin can be selected to display a popup with a button to display that station's timetable, clicking "View Timetable" will display the station's upcoming trains. 
--Clicking on the "Home" button will navigate the user back to the homepage.
+-The "+" and "-" buttons can be used to adjust the zoom applied to the map, and the pin button can be used to focus back on your current location if you pan away.  
+-Any station pin can be selected to display a popup with a button to display that station's timetable, clicking "View Timetable" will display the station's upcoming trains.  
+-Clicking on the "Home" button will navigate the user back to the homepage.  
     
 ### Results & Discussion
 
