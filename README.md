@@ -123,6 +123,24 @@ http://localhost:5000/next_trains?stop_id= * *STOP_ID* *
     
 ### Results & Discussion
 
+Our metro schedule application works well, providing a fast and easy way to check upcoming train arrivals in Lisbon. The system responds quickly on our local machines, making it practical for daily use. We designed the interface with two main features: a simple station search that shows upcoming trains for the selected station, and an interactive map that displays all stations as clickable pins.
+
+While we didn't conduct any formal user testing, feedback from peers was positive. Users liked user friendly approach of the dropdown search, the clear display of trains organized by direction, and the countdown showing wait times. Some suggested adding filters by route color, which would help commuters who only use specific lines.
+
+We faced several challenges during development. Creating effective database queries took some time, trial and error, and careful design, especially to group trains by direction and show only the next three trains per direction. Working with location data required the PostGIS extension, which added complexity but enabled our map feature. The Mapbox implementation sometimes had issues with users' privacy settings, so we added fallback options to ensure the app works even without precise location data.
+
+Our app offers advantages over the official Lisbon Metro website. While their site covers everything from art installations to construction plans, our solution focuses on the one thing most users want:  
+
+when's my next train coming?  
+
+This focused approach makes our app simpler, more convenient, and faster to use, especially on mobile devices.
+
+Working with GTFS data has limitations. For Lisbon specifically, the data is based on predetermined schedules rather than live train positions, so we can't show delays or disruptions. Our system also struggles with the transition between weekday and weekend schedules and doesn't clearly indicate when the metro is closed.
+
+Despite these limitations, we achieved our main goal of creating a user-friendly system that shows the next trains at any Lisbon metro station for each direction. Our ETL pipeline, database, and API work together smoothly to deliver accurate schedule information.
+
+For the future, we're considering adding route filters, service alerts, station maps with platform layouts, and route planning features. These enhancements would build on what we've created while maintaining our focus on improving the commuter experience with timely, accessible information.
+
 ### Conclusion
 
 This project successfully implements a system that allows users to easily and interactively check real-time metro departure times at Lisbon’s stations. By integrating an ETL pipeline, a structured database, and an API, the system efficiently gathers, processes, and serves metro schedule data, enhancing accessibility and usability for commuters.
